@@ -10,6 +10,7 @@ using namespace std;
 #define fi first
 #define se second
 typedef long long ll;
+#define fs first
 
 // IO
 #define multitest signed __T; cin >> __T; while(__T--)
