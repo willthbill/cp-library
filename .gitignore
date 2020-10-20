@@ -1,3 +1,4 @@
 *.exe
 *~
 *.swp
+generator/node_modules
