@@ -5,13 +5,10 @@
   "main": "main.js",
   "bin": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generateexe": "npx pkg ."
   },
   "author": "",
   "license": "ISC",
-  "scripts": {
-    "generateexe" : "npx pkg ."
-  },
   "dependencies": {
     "clipboardy": "^2.3.0"
   }
