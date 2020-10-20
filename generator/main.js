@@ -74,7 +74,7 @@ function _test(){
 
 function processFile(pathname){
     let file = fs.readFileSync(
-        `../src/${pathname}/main.cpp`,
+        `${__dirname}/../src/${pathname}/main.cpp`,
         {encoding:'utf8', flag:'r'}
     );
     const matches = file.matchAll(matchString);
@@ -89,14 +89,14 @@ function processFile(pathname){
 async function run(){
     let category, concept;
     try{
-        const categories = await getFolders("../src");
+        const categories = await getFolders(`${__dirname}/../src`);
         const category_reader = getReader(categories);
         category = await getInput(
             category_reader,
             categories,
             "Input code category: "
         );
-        const concepts = await getFolders(`../src/${category}`);
+        const concepts = await getFolders(`${__dirname}/../src/${category}`);
         const concept_reader = getReader(concepts);
         concept = await getInput(
             concept_reader,
@@ -119,7 +119,7 @@ ${file}
     console.log();
     console.log(`${outputColors.green}Generated content for ${category}/${concept}`);
     console.log(`${outputColors.green}Content copied to clipboard`);
-    console.log(`${outputColors.green}Content written to ${outputFile}`);
+    console.log(`${outputColors.green}Content written to ${outputFile} (in your current directory)`);
     console.log();
 }
 
