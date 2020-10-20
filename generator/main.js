@@ -2,6 +2,18 @@ const clipboardy = require('clipboardy');
 const readline = require('readline');
 const fs = require('fs');
 
+function getDirectory(){
+    return __dirname;
+    const temp1 = process.argv0; // calling path
+    let idx = temp1.lastIndexOf("/");
+    if(idx == -1) idx = temp1.length;
+    const temp2 = temp1.substring(0, idx);
+    const directory = `${process.cwd()}/${temp2}`;
+    return directory;
+}
+
+const directory = getDirectory();
+
 const outputColors = {
     green : "\x1b[32m",
     red : "\x1b[31m",
@@ -74,7 +86,7 @@ function _test(){
 
 function processFile(pathname){
     let file = fs.readFileSync(
-        `${__dirname}/../src/${pathname}/main.cpp`,
+        `${directory}/../src/${pathname}/main.cpp`,
         {encoding:'utf8', flag:'r'}
     );
     const matches = file.matchAll(matchString);
@@ -89,14 +101,14 @@ function processFile(pathname){
 async function run(){
     let category, concept;
     try{
-        const categories = await getFolders(`${__dirname}/../src`);
+        const categories = await getFolders(`${directory}/../src`);
         const category_reader = getReader(categories);
         category = await getInput(
             category_reader,
             categories,
             "Input code category: "
         );
-        const concepts = await getFolders(`${__dirname}/../src/${category}`);
+        const concepts = await getFolders(`${directory}/../src/${category}`);
         const concept_reader = getReader(concepts);
         concept = await getInput(
             concept_reader,

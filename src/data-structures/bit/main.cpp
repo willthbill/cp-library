@@ -1,5 +1,3 @@
-%include<data-structures/union-find>%
-
 template<class Int>
 struct BIT{ // all input should be 0-indexed, only supports sum-queries
     // one of the following may be used
