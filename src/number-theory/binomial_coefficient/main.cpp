@@ -1,4 +1,4 @@
-#include "..\mod_pow\main.cpp"
+%include<number-theory/mod_pow>%
 
 ll nck(ll n, ll k, ll m, vector<ll>& factorials) { // m is big prime
 	assert(n >= k);

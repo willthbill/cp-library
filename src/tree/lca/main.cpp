@@ -1,5 +1,4 @@
-
-#include "../binary_lifting/main.cpp"
+%include<tree/binary_lifting>%
 
 struct LCA : public binary_lifting {
 	vector<int> dist;
