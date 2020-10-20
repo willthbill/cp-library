@@ -49,6 +49,7 @@ function getInput(reader, completions, question){
             reader.close();
             if(completions.indexOf(input) == -1){
                 console.log(`${outputColors.red}Invalid input`);
+                console.log(`${outputColors.reset}`);
                 process.exit(0);
             }
             resolve(input);
@@ -132,7 +133,7 @@ ${file}
     console.log(`${outputColors.green}Generated content for ${category}/${concept}`);
     console.log(`${outputColors.green}Content copied to clipboard`);
     console.log(`${outputColors.green}Content written to ${outputFile} (in your current directory)`);
-    console.log();
+    console.log(`${outputColors.reset}`);
 }
 
 run();
