@@ -6,6 +6,7 @@ typedef long long ll;
 
 struct binary_lifting // Rooted at 0, 0-indexed
 {
+	bool built = false;
 	int n, levels, root;
 	vector<int> par;
 	vector<vector<int>> edg;
@@ -19,6 +20,7 @@ struct binary_lifting // Rooted at 0, 0-indexed
 	}
 	void add_edge(int a, int b) // must be parent first and then child
 	{
+		built = false;
 		edg[a + 1].pb(b + 1);
 		edg[b + 1].pb(a + 1);
 	}
@@ -44,6 +46,7 @@ struct binary_lifting // Rooted at 0, 0-indexed
 	}
 	void build() // after all edges have been added, build sparse table
 	{
+		built = true;
 		assign_parents();
 		for(int i = 2; i <= n; ++i)
 		{
@@ -59,6 +62,10 @@ struct binary_lifting // Rooted at 0, 0-indexed
 	}
 	int query(int start, int up) // finds the node up-levels up from start
 	{
+		if(!built) {
+			cout << "You haven't built the sparse table!!" << endl;
+		}
+		if(up == 0) return start;
 		int cur = start + 1;
 		for(int i = 0; i < levels; ++i)
 		{

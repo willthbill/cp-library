@@ -1,15 +1,16 @@
-struct binary_lifting // Rooted at 0, 0-indexed
+
+struct binary_lifting // 0-indexed
 {
 	int n, levels, root;
 	vector<int> par;
 	vector<vector<int>> edg;
 	vector<vector<int>> jump;
-	binary_lifting(int _n, int _levels, int _root) : n(_n), levels(_levels), root(_root)
+	binary_lifting(int _n, int _levels, int _root) : n(_n), levels(_levels), root(_root + 1)
 	{
 		jump = vector<vector<int>>(n + 1, vector<int>(levels));
 		edg = vector<vector<int>>(n + 1);
 		par = vector<int>(n + 1);
-		par[root + 1] = 0;
+		par[root] = 0, par[0] = 0;
 	}
 	void add_edge(int a, int b) // must be parent first and then child
 	{
@@ -19,9 +20,9 @@ struct binary_lifting // Rooted at 0, 0-indexed
 	void assign_parents()
 	{
 		stack<int> s;
-		s.push(root + 1);
+		s.push(root);
 		vector<bool> vis(n + 1);
-		vis[root + 1] = true;
+		vis[root] = true;
 		while(!s.empty())
 		{
 			ll cur = s.top(); s.pop();
@@ -53,6 +54,7 @@ struct binary_lifting // Rooted at 0, 0-indexed
 	}
 	int query(int start, int up) // finds the node up-levels up from start
 	{
+		if(up == 0) return start;
 		int cur = start + 1;
 		for(int i = 0; i < levels; ++i)
 		{
