@@ -48,7 +48,7 @@ const int mxa = 1e7;
 vector<pair<ll, ll>> prime_factorize(ll n, const vi& primes, const vector<vi>& mul)
 {
 	vector<pair<ll, ll>> ans;
-	for (int i = 0; i < primes.size() && primes[i] <= n; i++) {
+	for (int i = 0; i < primes.size() && primes[i] <= n && n > 1; i++) {
 		ll p = primes[i];
 		if (n % p == 0) {
 			int l = 1, r = mul[i].size() - 1, bst = 1;
