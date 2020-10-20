@@ -1,4 +1,4 @@
-vector<int> bellman_ford(vector<pair<int, int>>* adj, int n, int m, int src) {
+vector<int> bellman_ford(vector<vector<pair<int, int>>>& adj, int n, int m, int src) {
 
     vector<int> dist(n, INT_MAX);
     dist[src] = 0;
