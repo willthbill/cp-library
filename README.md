@@ -7,13 +7,13 @@
 
 ## Dependency handling
 ### Generating output file with dependencies
-In the generator directory is a node js script (`main.js`).
+In the `generator` directory is a node js script (`main.js`).
 The script has dependencies, which must be installed using npm or yarn. Run the following commands.
 ```
 cd generator
 npm install
 ```
-Run the following command to execute the script (with path as your `*path*` to the `main.js` file.
+Run the following command to execute the script (with `*path*` as your path to the `main.js` file.
 ```
 node *path*/main.js
 ```
