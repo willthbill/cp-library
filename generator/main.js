@@ -136,4 +136,11 @@ ${file}
     console.log(`${outputColors.reset}`);
 }
 
-run();
+if(process.argv.length == 4){ // silent
+    const category = process.argv[2];
+    const concept = process.argv[3];
+    let file = processFile(`${category}/${concept}`);
+    fs.writeFileSync(outputFile, file);
+}else{
+    run();
+}
