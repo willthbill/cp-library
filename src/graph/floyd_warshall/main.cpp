@@ -1,7 +1,7 @@
 template<class Int>
 vector<vector<Int>> floyd_warshall(vector<vector<pair<int, Int>>>& adj, Int MX){
 	int n = (int)adj.size();
-	vector<vector<Int>> graph(n, vector<int>(n, MX));
+	vector<vector<Int>> graph(n, vector<Int>(n, MX));
 	// INITIALIZE GRAPH WITH DIST 0 FROM NODE TO ITSELF
 	for(int i = 0; i < n; i++) graph[i][i] = 0;
 	// INPUT ALL EDGES AND UPDATE THE MIN WEIGHT
