@@ -1,3 +1,6 @@
+// https://cses.fi/problemset/task/1672
+#include<bits/stdc++.h>
+using namespace std;
 template<class Int=long long>
 struct Dijkstra{
     // could add support for number of shortest paths and so on...
@@ -39,3 +42,30 @@ struct Dijkstra{
         return dist;
     }
 };
+template<class Int=long long>
+vector<vector<Int>> APSP(vector<vector<pair<int, Int>>>& adj){
+	int N = (int)adj.size();
+	vector<vector<Int>> res (N);
+	Dijkstra<Int> ds (adj);
+	for(int i = 0; i < N; i++){
+		res[i] = ds.run(i);
+	}
+	return res;
+}
+int main(){
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	int n,m,q; cin >> n >> m >> q;
+	vector<vector<pair<int, long long>>> adj (n);
+	for(int i = 0; i < m; i++){
+		int a, b, c; cin >> a >> b >> c; a--, b--;
+		adj[a].push_back({b,c});
+		adj[b].push_back({a,c});
+	}
+	auto apsp = APSP(adj);
+	for(int i = 0; i < q; i++){
+		int a, b; cin >> a >> b; a--, b--;
+		assert(apsp[a][b] == apsp[b][a]);
+		cout << apsp[a][b] << endl;
+	}
+}
