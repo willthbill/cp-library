@@ -1,5 +1,9 @@
+// https://www.hackerearth.com/practice/math/number-theory/primality-tests/practice-problems/algorithm/simple-prime-factorization
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
 // mul is prime exponentiation table, and primes is a list of primes
-vector<pair<ll, ll>> prime_factorize(ll n, const vector<ll>& primes, const vector<vector<ll>>& mul)
+vector<pair<ll, ll>> prime_factorize(ll n, const vector<int>& primes, const vector<vector<int>>& mul)
 {
 	vector<pair<ll, ll>> ans;
 	for (int i = 0; i < (int) primes.size() && primes[i] <= n && n > 1; i++) {
@@ -41,4 +45,21 @@ vector<pair<ll,ll>> prime_factorize(ll n){ // O(sqrt(n)) at most (if n is prime)
 	}
 	if(n > 1) res.push_back({n, 1});
 	return res;
+}
+int main(){
+	int t; cin >> t;
+	while(t--){
+		ll n; cin >> n;
+		auto te = prime_factorize(n);
+		if(te.size() == 1){
+			cout << "2^0" << endl;
+			continue;
+		}
+		if(te[0].first != 2) te.insert(te.begin(), {2,0});
+		for(int i = 0; i < te.size(); i++){
+			auto e = te[i];
+			cout << e.first << "^" << e.second << (i == te.size() - 1 ? "" : "*");
+		}
+		cout << endl;
+	}
 }
