@@ -3,7 +3,7 @@
 using namespace std;
 #define ll long long
 ll gcd(ll a, ll b) { return (a % b == 0) ? b : gcd(b, a % b); }
-pair<ll,ll> egcd(ll a, ll b){
+pair<ll,ll> egcd(ll a, ll b){ // returns pair {x,y} such that a * x + b * y = gcd(a,b)
 	if(b == 0) return {1, 0};
 	auto t = egcd(b, a % b);
 	return {
