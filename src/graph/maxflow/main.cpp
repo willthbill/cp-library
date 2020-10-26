@@ -1,30 +1,44 @@
-// Con is the edges container type, Int is capacity type, size is type of N, Int and size cannot be unsigned
+// Int is capacity type
 template<class Int>
 struct MaxFlow{
     // ford fulkerson with dfs and capacity scaling
     // works for directed and undirected
     int N;
-    vector<vector<Int>> capacity;
+	bool hasbeeninitialized = false; // useful when using the reset method
+    vector<vector<Int>> capacity; // change this to map if memory problems
     vector<int> par;
     vector<vector<pair<int, Int>>> adjList;
     MaxFlow(){}
     // adjList[i][j] = {node, capacity}
     // might be able to handle selfloops
-    MaxFlow(vector<vector<pair<int, Int>>>& adjList){
-        N = adjList.size();
-        capacity = vector<vector<Int>> (N, vector<Int> (N));
-        this->adjList = adjList;
-        for(int i = 0; i < N; i++){
-            for(auto &e : adjList[i]){
+    MaxFlow(vector<vector<pair<int, Int>>>& _adjList){
+		N = (int)_adjList.size();
+		capacity = vector<vector<Int>> (N, vector<Int> (N));
+		reset(_adjList);
+		hasbeeninitialized = true;
+    }
+	// does not reallocate large memory, n*n (capacity matrix)
+	void reset(vector<vector<pair<int,Int>>>& _adjList){
+        adjList = _adjList;
+        N = (int)adjList.size();
+		if(hasbeeninitialized){
+			for(int i = 0; i < N; i++){
+				for(auto &e : _adjList[i]){
+					capacity[i][e.first] = 0;
+				}
+			}
+		}
+		for(int i = 0; i < N; i++){
+            for(auto &e : _adjList[i]){
                 capacity[i][e.first] += e.second;
             }
         }
         for(int i = 0; i < N; i++){
-            for(auto& e : adjList[i]){
-                this->adjList[e.first].push_back({i, 0}); // works for undirected???
+            for(auto& e : _adjList[i]){
+                adjList[e.first].push_back({i, 0}); // works for undirected???
             }
         }
-    }
+	}
     Int getMinFlow(int node, int p, Int constrain, int t){
         par[node] = p;
         for(auto& e : adjList[node]){
@@ -47,7 +61,12 @@ struct MaxFlow{
         Int maxCapacity = 0;
         for(int i = 0; i < N; i++) for(int j = 0; j < N; j++)
             maxCapacity = max(capacity[i][j], maxCapacity);
-        Int constrain = 1 << (sizeof(maxCapacity) * 8 - 1 - __builtin_clzll(maxCapacity)); // test this
+		Int constrain = -1;
+		for(int i = sizeof(maxCapacity) * 8 - 1; i >= 0; i--){
+			if((maxCapacity >> i) & 1){
+				constrain = 1 << i;
+			}
+		}
         while(constrain){
             Int minFlow = -1;
             while(1){
