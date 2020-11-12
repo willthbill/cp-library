@@ -1,32 +1,32 @@
 template<class T>
 struct Edge {
-    int v;
+    T v;
     T flow;
     T capacity;
-    int reversed_edge;
+    T reversed_edge;
 };
 
 template<class T>
 class Maxflow {
     vector<vector<Edge<T>>> adj;
-    int N;
-    vector<int> level;
+    T N;
+    vector<T> level;
 public:
-    Maxflow(vector<vector<Edge<T>>> adj, int N) {
+    Maxflow(vector<vector<Edge<T>>> adj, T N) {
         this->adj = adj;
         this->N = N;
         level.resize(N);
     }
 
-    bool BFS(int s, int t) {
-        for (int i = 0; i < N; i++)
+    bool BFS(T s, T t) {
+        for (T i = 0; i < N; i++)
             level[i] = -1;
         level[s] = 0;
 
-        list<int> q;
+        list<T> q;
         q.push_back(s);
         while (!q.empty()) {
-            int u = q.front();
+            T u = q.front();
             q.pop_front();
 
             for (auto i = adj[u].begin(); i != adj[u].end(); i++) {
@@ -37,11 +37,11 @@ public:
                 }
             }
         }
-
+        
         return (level[t] < 0) ? false : true;
     }
 
-    int sendFlow(int u, int flow, int t, vector<int>& start) {
+    T sendFlow(T u, T flow, T t, vector<T>& start) {
         if (u == t)
             return flow;
 
@@ -49,8 +49,8 @@ public:
             Edge<T>& e = adj[u][start[u]];
 
             if (level[e.v] == level[u]+1 && e.flow < e.capacity) {
-                int curr_flow = min(flow, e.capacity-e.flow);
-                int temp_flow = sendFlow(e.v, curr_flow, t, start);
+                T curr_flow = min(flow, e.capacity-e.flow);
+                T temp_flow = sendFlow(e.v, curr_flow, t, start);
 
                 if (temp_flow > 0) {
                     e.flow += temp_flow;
@@ -64,15 +64,15 @@ public:
         return 0;
     }
 
-    int dinic_maxflow(int s, int t) {
+    T dinic_maxflow(T s, T t) {
         if (s == t)
             return -1;
 
-        int total = 0;
+        T total = 0;
         while (BFS(s, t) == true) {
-            vector<int> start(N+1);
+            vector<T> start(N+1);
 
-            while (int flow = sendFlow(s, INT_MAX, t, start))
+            while (T flow = sendFlow(s, numeric_limits<T>::max(), t, start))
                 total += flow;
         }
 
@@ -81,7 +81,7 @@ public:
 };
 
 template<class T>
-void add_edge(vector<vector<Edge<T>>>& adj, int u, int v, T capacity) {
+void add_edge(vector<vector<Edge<T>>>& adj, T u, T v, T capacity) {
     Edge<T> a{v, 0, capacity, (int)adj[v].size()};
     Edge<T> b{u, 0, 0, (int)adj[u].size()};
     adj[u].push_back(a);
