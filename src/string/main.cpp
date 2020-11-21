@@ -19,7 +19,7 @@ vector<int> suffix_array(Container s) {
 			++j;
 		eq[nxt] = j;
 	}
-	for (int k = 1; k < 20; ++k) { // Set this value to log2 n for increased speed
+	for (int k = 1; (1 << (k - 1)) <= n; ++k) { // Set this value to log2 n for increased speed
 		sort(P.begin(), P.end(), [&](int a, int b) {
 			int nxta = (a + (1 << (k - 1))) % n, nxtb = (b + (1 << (k - 1))) % n;
 			return eq[a] < eq[b] || (eq[a] == eq[b] && eq[nxta] < eq[nxtb]);
