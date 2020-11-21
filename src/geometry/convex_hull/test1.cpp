@@ -42,7 +42,7 @@ class ConvexHull {
         return res;
     }
 
-    int swap(pair<T, T>& p1, pair<T, T>& p2) {
+    void swap(pair<T, T>& p1, pair<T, T>& p2) {
         pair<T, T> temp = p1;
         p1 = p2;
         p2 = temp;
