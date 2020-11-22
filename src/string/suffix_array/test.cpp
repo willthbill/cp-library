@@ -1,10 +1,24 @@
-﻿// https://codeforces.com/edu/course/1/lesson/2/1/practice/contest/269100/problem/A
+﻿//https://codeforces.com/edu/course/2/lesson/2/2/practice/contest/269103/problem/A
 #include "bits/stdc++.h"
 using namespace std;
 typedef long long ll;
 #define fs first
 #define sc second
 #define endl '\n'
+
+template<class Int, class Auxiliary>
+vector<pair<Int, Auxiliary>> counting_sort(vector<pair<Int, Auxiliary>> A, int max_val) {
+	int n = A.size();
+	vector<int> cnt(n + 1, 0);
+	for (int i = 0; i < n; i++)
+		cnt[A[i].fs + 1]++;
+	for (int i = 1; i < n; i++)
+		cnt[i] += cnt[i - 1];
+	vector<pair<Int, Auxiliary>> res(n);
+	for (int i = 0; i < n; i++)
+		res[cnt[A[i].fs]++] = A[i];
+	return res;
+}
 
 template<class Container>
 vector<int> suffix_array(Container s) {
@@ -28,10 +42,19 @@ vector<int> suffix_array(Container s) {
 		eq[nxt] = j;
 	}
 	for (int k = 1; (1 << (k - 1)) <= n; ++k) { // Set this value to log2 n for increased speed
-		sort(P.begin(), P.end(), [&](int a, int b) {
-			int nxta = (a + (1 << (k - 1))) % n, nxtb = (b + (1 << (k - 1))) % n;
-			return eq[a] < eq[b] || (eq[a] == eq[b] && eq[nxta] < eq[nxtb]);
-			});
+		// radix sort 
+		vector<pair<int, int>> frst(n);
+		for (int i = 0; i < n; i++) {
+			frst[i] = make_pair(eq[(i + (1 << (k - 1))) % n], i);
+		}
+		frst = counting_sort<int, int>(frst, n);
+		vector<pair<int, int>> scnd(n);
+		for (int i = 0; i < n; i++)
+			scnd[i] = make_pair(eq[frst[i].sc], frst[i].sc);
+
+		scnd = counting_sort<int, int>(scnd, n);
+		for (int i = 0; i < n; i++)
+			P[i] = scnd[i].sc;
 
 		// Create equivalence classes
 		vector<int> oldeq = eq;
@@ -50,10 +73,12 @@ vector<int> suffix_array(Container s) {
 }
 
 void solve() {
+	cin.sync_with_stdio(false), cin.tie(NULL);
 	string s;
 	cin >> s;
+
 	vector<int> P = suffix_array<string>(s);
-	for (int i = 0; i < P.size(); i++)
+	for (int i = 0; i <= s.size(); i++)
 		cout << P[i] << ' ';
 }
 

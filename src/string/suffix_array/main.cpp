@@ -1,3 +1,5 @@
+%include<other/counting_sort>%
+
 template<class Container>
 vector<int> suffix_array(Container s) {
 	s += '$';
@@ -20,10 +22,19 @@ vector<int> suffix_array(Container s) {
 		eq[nxt] = j;
 	}
 	for (int k = 1; (1 << (k - 1)) <= n; ++k) { // Set this value to log2 n for increased speed
-		sort(P.begin(), P.end(), [&](int a, int b) {
-			int nxta = (a + (1 << (k - 1))) % n, nxtb = (b + (1 << (k - 1))) % n;
-			return eq[a] < eq[b] || (eq[a] == eq[b] && eq[nxta] < eq[nxtb]);
-			});
+		// radix sort 
+		vector<pair<int, int>> frst(n);
+		for (int i = 0; i < n; i++) {
+			frst[i] = make_pair(eq[(i + (1 << (k - 1))) % n], i);
+		}
+		frst = counting_sort<int, int>(frst, n);
+		vector<pair<int, int>> scnd(n);
+		for (int i = 0; i < n; i++)
+			scnd[i] = make_pair(eq[frst[i].sc], frst[i].sc);
+
+		scnd = counting_sort<int, int>(scnd, n);
+		for (int i = 0; i < n; i++)
+			P[i] = scnd[i].sc;
 
 		// Create equivalence classes
 		vector<int> oldeq = eq;
