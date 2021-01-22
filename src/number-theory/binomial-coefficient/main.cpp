@@ -1,7 +1,7 @@
-%include<number-theory/mod_pow>%
+%include<number-theory/mod>%
 
 ll choose(ll n, ll k, ll m, vector<ll>& factorials) { // m is big prime
 	assert(n >= k);
 	assert(int(factorials.size()) > n);
-	return factorials[n] * mod_pow(factorials[n - k] * factorials[k] % m, m - 2, m) % m;
+	return factorials[n] * mpow(factorials[n - k] * factorials[k] % m, m - 2, m) % m;
 }
