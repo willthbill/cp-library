@@ -25,7 +25,7 @@ function copy(str){
 }
 
 function getFolders(rootFolder){
-    return new Promise((resolve, _) => 
+    return new Promise((resolve, _) =>
         fs.readdir(rootFolder, (_, files) => {
             resolve(files);
         })
@@ -44,7 +44,7 @@ function getReader(completions){
 }
 
 function getInput(reader, completions, question){
-    return new Promise((resolve, _) => 
+    return new Promise((resolve, _) =>
         reader.question(question, input => {
             reader.close();
             if(completions.indexOf(input) == -1){
@@ -96,7 +96,15 @@ function processFile(pathname){
         const dependency = processFile(newPath) + "\n";
         file = file.replace(match[0], dependency);
     }
-    return file;
+    return setFileMetaData(file, pathname);
+}
+
+function setFileMetaData(file, pathname) {
+    return `// BEGIN code block of: ${pathname}
+// Standard message: The following is code from https://github.com/williamMBDK/cp-library but was copied from a local copy of the repository. Changes to the original source may have been done here.
+${file}
+// END code block of: ${pathname}
+`;
 }
 
 async function run(){
@@ -117,11 +125,6 @@ async function run(){
             "Input algorithm/datastructure: "
         );
         let file = processFile(`${category}/${concept}`);
-        file = 
-`// START Generated output of: ${category}/${concept}
-${file}
-// END Generated output of: ${category}/${concept}
-`;
         copy(file);
         fs.writeFileSync(outputFile, file);
     } catch(e){
