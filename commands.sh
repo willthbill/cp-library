@@ -1,0 +1,10 @@
+cplib(){
+  program=~/cp-library/generator/main.js
+  if [ $# -eq 2 ]; then
+    node $program $1 $2
+  elif [ $# -eq 0 ]; then
+    node $program
+  else
+    echo "Invalid args: 0 or 2 arguments may be supplied"
+  fi
+}
