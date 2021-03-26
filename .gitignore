@@ -1,4 +1,4 @@
-*.exe
+./src/*.exe
 *~
 *.swp
 generator/node_modules
