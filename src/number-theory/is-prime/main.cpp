@@ -1,3 +1,4 @@
+// https://github.com/SuprDewd/CompetitiveProgramming/blob/master/code/mathematics/is_prime.cpp
 bool is_prime(int n) {
   if (n < 2) return false;
   if (n < 4) return true;
