@@ -1,6 +1,7 @@
-*.exe
+./src/*.exe
 *~
 *.swp
 generator/node_modules
 generator/temp-generated.cpp
-
+*/temp-generated.cpp
+temp-generated.cpp

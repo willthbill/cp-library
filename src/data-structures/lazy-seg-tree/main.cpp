@@ -68,7 +68,7 @@ struct LazyST{
 			arr[idx] = mergeF(arr[idx*2], arr[idx*2+1]);
 		}
 	}
-	void addrange(int ql, int qr, int val){
+	void addrange(int ql, int qr, T val){
 		_addrange(1, 0, N-1, ql, qr, val);
 	}
 	void _setrange(int idx, int l, int r, int ql, int qr, T val){
@@ -86,7 +86,7 @@ struct LazyST{
 			arr[idx] = mergeF(arr[idx*2], arr[idx*2+1]);
 		}
 	}
-	void setrange(int ql, int qr, int val){
+	void setrange(int ql, int qr, T val){
 		_setrange(1, 0, N-1, ql, qr, val);
 	}
 	T _q(int idx, int l, int r, int ql, int qr){
