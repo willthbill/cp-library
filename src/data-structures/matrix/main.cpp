@@ -1,3 +1,4 @@
+// https://github.com/SuprDewd/CompetitiveProgramming/blob/master/code/data-structures/matrix.cpp
 const double EPS = 1e-9;
 const int MOD = 1e9 + 7; // CHANGE MODULO DEPENDING ON PROBLEM, it is here only because matrix exponentiation usually gets large
 template <class K> bool eq(K a, K b) { return a == b; }
