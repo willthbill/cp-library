@@ -1,3 +1,4 @@
+// https://codereview.stackexchange.com/questions/237690/bigint-class-in-c
 class BigInt {
 public:
     bool neg = false;
