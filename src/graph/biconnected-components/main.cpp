@@ -1,4 +1,3 @@
-int ROOT;
 struct Component { // you can delete this struct if you don't want to use it, but it is very useful for handling components separately
 	map<int, int> from, to;
 	vector<vector<pair<int,int>>> adj;
@@ -18,12 +17,13 @@ struct Component { // you can delete this struct if you don't want to use it, bu
 	}
 };
 struct BiconnectedComponents {
+	int ROOT;
 	vector<bool> vis, points;
 	vector<int> low, disc, minSubtree, curs;
 	vector<vector<int>> comps;
 	vector<vector<pair<pair<int, int>, int>>> compEdges;
 	vector<vector<pair<int, int>>> adj;
-	BiconnectedComponents(vector<vector<pair<int, int>>> _adj) : adj(_adj) { }
+	BiconnectedComponents(vector<vector<pair<int, int>>> _adj, int root) : adj(_adj), ROOT(root) { }
 	int findArticulationPoints(int at, int& t) {
 		if (vis[at])
 			return INT_MAX; // will never happen since I check vis before entering a node
