@@ -1,6 +1,5 @@
 // https://lthchallenge21.kattis.com/problems/lthchallenge21.ortestpath
-#include "bits/stdc++.h"
-#include<sstream>
+#include <bits/stdc++.h>
 using namespace std;
 // shortcuts
 #define pb push_back
@@ -177,10 +176,9 @@ struct MaxFlow {
 
 // BEGIN code block of: graph/biconnected-components
 // Standard message: The following is code from https://github.com/williamMBDK/cp-library but was copied from a local copy of the repository. Changes to the original source may have been done here.
-int ROOT;
 struct Component { // you can delete this struct if you don't want to use it, but it is very useful for handling components separately
 	map<int, int> from, to;
-	vector<vector<pair<int, int>>> adj;
+	vector<vector<pair<int,int>>> adj;
 	Component(vector<int>& nodes, vector<pair<pair<int, int>, int>> edges) {
 		int idx = 0;
 		for (int node : nodes) {
@@ -197,12 +195,13 @@ struct Component { // you can delete this struct if you don't want to use it, bu
 	}
 };
 struct BiconnectedComponents {
+	int ROOT;
 	vector<bool> vis, points;
 	vector<int> low, disc, minSubtree, curs;
 	vector<vector<int>> comps;
 	vector<vector<pair<pair<int, int>, int>>> compEdges;
 	vector<vector<pair<int, int>>> adj;
-	BiconnectedComponents(vector<vector<pair<int, int>>> _adj) : adj(_adj) { }
+	BiconnectedComponents(vector<vector<pair<int, int>>> _adj, int root) : adj(_adj), ROOT(root) { }
 	int findArticulationPoints(int at, int& t) {
 		if (vis[at])
 			return INT_MAX; // will never happen since I check vis before entering a node
@@ -281,6 +280,7 @@ struct BiconnectedComponents {
 };
 
 // END code block of: graph/biconnected-components
+
 
 map<pair<pair<int, int>, int>, int> edgeLabels;
 vector<int> findRandomPath(int u, int v, vector<vector<pair<int, int>>>& adj) {
@@ -414,12 +414,11 @@ void _test() {
 		adj[b].pb({ a, c });
 		w[{a, b}] = w[{b, a}] = c;
 	}
-	ROOT = s;
 	if (findRandomPath(s, t, adj)[0] == -1) {
 		prl(-1);
 		return;
 	}
-	BiconnectedComponents bc(adj);
+	BiconnectedComponents bc(adj, s);
 	auto res = bc.findArticulationPointsAndComponents(adj);
 	vector<bool> points = res.fs;
 	vector<vector<int>> comps = res.sc.fs;

@@ -23,7 +23,7 @@ struct BiconnectedComponents {
 	vector<vector<int>> comps;
 	vector<vector<pair<pair<int, int>, int>>> compEdges;
 	vector<vector<pair<int, int>>> adj;
-	BiconnectedComponents(vector<vector<pair<int, int>>> _adj, int root) : adj(_adj), ROOT(root) { }
+	BiconnectedComponents(vector<vector<pair<int, int>>> _adj, int root=0) : adj(_adj), ROOT(root) { }
 	int findArticulationPoints(int at, int& t) {
 		if (vis[at])
 			return INT_MAX; // will never happen since I check vis before entering a node
