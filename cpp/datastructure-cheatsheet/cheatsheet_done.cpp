@@ -132,8 +132,8 @@ int main() {
         cout << q.size() << endl; // "3"
         cout << q.empty() << endl; // false, "0"
       // pop (bruger fifo, first in first out)
-        q.pop(); // q = {1 -> 3}
-        q.pop(); // q = {1}
+        q.pop(); // q = {3 -> 2}
+        q.pop(); // q = {2}
       // bfs med queue
         q = queue<int>();
         q.push(0);
@@ -176,16 +176,17 @@ int main() {
           for(int neighbour : adj[node]) s.push(neighbour);
         }
     }
-  // deque<type> (https://en.cppreference.com/w/cpp/container/deque)
+  // std::deque<type> (https://en.cppreference.com/w/cpp/container/deque)
     {
       // en deque kan alt hvad en vector, queue og stack kan
       // alle operationer på nær insert er konstant tid **???
       // oprettelse
-        deque<int> d;
+        deque<int> d; // d = {}
+        deque<int> d2 (5, 2); // d2 = {2,2,2,2,2}
       // tilføjelse af værdier
-        d.push_back(3); // d = {1}
-        d.push_front(2); // d = {2,1}
-        d.insert(d.begin() + 1, 1); // d = {2,3,1}
+        d.push_back(3); // d = {3}
+        d.push_front(2); // d = {2,3}
+        d.insert(d.begin() + 1, 1); // d = {2,1,3}
         d.push_front(4); // d = {4,2,1,3}
         d.push_back(5); // d = {4,2,1,3,5}
       // tilgå elementer
@@ -205,7 +206,7 @@ int main() {
         d.pop_front(); // d = {2,6}
         d.clear(); // d = {}
     }
-  // priority_queue<type, container, comparator> (https://en.cppreference.com/w/cpp/container/priority_queue)
+  // std::priority_queue<type, container, comparator> (https://en.cppreference.com/w/cpp/container/priority_queue)
     {
       // top er heletiden det største element i prioritetskøen
       // bemærk at prioritetskøen ikke nødvendigvis er sorteret
@@ -250,7 +251,7 @@ int main() {
           pq.push({1,2}); // pq.top() = {5,4}
       }
     }
-  // set<type> og unordered_set<type> (https://en.cppreference.com/w/cpp/container/set)
+  // std::set<type> og unordered_set<type> (https://en.cppreference.com/w/cpp/container/set)
     {
       // rækkefølgen vil heletiden være ikke-faldende for set, mens for unordered_set er rækkefølgen ikke garanteret
       // oprettelse
@@ -274,7 +275,7 @@ int main() {
         s1.erase(s1.find(3)); // s1 = {1,2}
         s1.clear(); // s1 = {}
     }
-  // map<keytype,valuetype> og unordered_map<keytype,valuetype> (https://en.cppreference.com/w/cpp/container/map)
+  // std::map<keytype,valuetype> og unordered_map<keytype,valuetype> (https://en.cppreference.com/w/cpp/container/map)
     {
       // rækkefølgen vil heletiden være ikke-faldende (ift. key) for map, mens for unordered_map er rækkefølgen ikke garanteret
       // oprettelse
@@ -298,14 +299,17 @@ int main() {
         // map er log(størrelse) tid mens unordered_map er konstant tid
         mp1.erase(mp1.find(3)); // mp1 indeholder nu kun nøglen 1
         mp1.clear(); // mp1 er nu tom
+      // et map opretter automatisk default værdier til til values
+        map<int,vector<int>> mp3;
+        mp3[1].push_back(2); // giver ikke runtime error
     }
-  // multiset<type> (https://en.cppreference.com/w/cpp/container/multiset)
+  // std::multiset<type> (https://en.cppreference.com/w/cpp/container/multiset)
     {
       // præcis samme som set bortset fra at multiset godt kan indeholde dubletter
       multiset<int> ms = {2,1,1,3}; // ms = {2,1,1,3}
       // når man skal slette et element kan give ms.find(value) en iterator der ikke nødvendigvis er den første value
     }
-  // multimap<keytype,valuetype> (https://en.cppreference.com/w/cpp/container/multimap)
+  // std::multimap<keytype,valuetype> (https://en.cppreference.com/w/cpp/container/multimap)
     {
       // præcis samme som map bortset fra at multimap godt kan indeholde dubletter
       multimap<int,string> mp = {{1,"a"}, {1,"b"}, {2,"c"}};
@@ -358,7 +362,7 @@ int main() {
         // at finde det intervallet af elementer med en given værdi
         // kan bruges på det samme som lower_bound og upper_bound, men er brugbar til vector (skal være sorteret), deque (skal være sorteret), multiset og multimap
         vector<int> container = {1,2,4,4,4,5};
-        auto range = equal_range(container.begin(), container.end(), 4);
+        auto range = equal_range(container.begin(), container.end(), 4); // returns pair of iterators
         int left = range.first - container.begin();
         int right = range.second - container.begin() - 1; // range.second er lige efter ens range
         cout << left << " " << right << endl; // "2 4" left index og right index
@@ -373,12 +377,50 @@ int main() {
       vector<int> a,b;
       vector<int> v = {1,2,3}; // v kunne også være andre typer
       swap(a,b); // a = b, b = a
-      min_element(v.begin(), v.end()); // mindste element i rangen
-      max_element(v.begin(), v.end()); // største element i rangen
+      min_element(v.begin(), v.end()); // mindste element i rangen som en iterator (brug * for at dereference)
+      max_element(v.begin(), v.end()); // største element i rangen som en iterator (brug * for at dereference)
       reverse(v.begin(), v.end()); // vender en range om, {3,2,1}
       random_shuffle(v.begin(), v.end()); // bytter tilfældigt rundt på elementerne i en range
       next_permutation(v.begin(), v.end()); // modificere v til at indeholde den 'næste permutation'
       iota(v.begin(),v.end(),0); //fylder ud med 0, 1, 2, 3 .., v = {0,1,2}
       accumulate(v.begin(), v.end(), 0); // summen af elementer i v
+    }
+  // std::bitset<size> (https://en.cppreference.com/w/cpp/utility/bitset)
+    {
+      // ligesom en boolean array men bruger lidt plads og kan lave smart bit operationer
+      // oprettelse
+      bitset<5> bs, bs2; // bs = 00000
+      // ændring af elementer
+      bs[1] = 1; // bs = 01000
+      bs[2] = true; // bs = 011000
+      bs[1] = 0; // bs = 00100
+      bs[2] = false; // bs = 00000
+      bs.set(1);
+      bs.reset(1);
+      bs.flip(1);
+      // tilgå elementer
+      cout << bs[3] << " " << bs.test(3) << endl; // ækvivalente
+      // tælle bits
+      cout << bs.count() << endl;
+      cout << bs.all() << endl; // er alle bits 1
+      cout << bs.any() << endl; // er der mindst en bit der er 1
+      cout << bs.none() << endl; // er alle bits 0
+      cout << bs.size() << endl; // antal bits total (5)
+      // operationer
+      bs &= bs2;
+      bs |= bs2;
+      bs ^= bs2;
+      bs <<= 4;
+      bs >>= 2;
+      bs = ~bs;
+      bs = bs << 4;
+      bs = bs >> 2;
+      bs = bs & 4;
+      bs = bs | 2;
+      bs = bs ^ 2;
+      // andre repræsentationer
+      cout << bs.to_string() << endl;
+      cout << bs.to_ulong() << endl;
+      cout << bs.to_ullong() << endl;
     }
 }
