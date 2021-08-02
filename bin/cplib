@@ -8,3 +8,5 @@ cplib(){
     echo "Invalid args: 0 or 2 arguments may be supplied"
   fi
 }
+
+cplib
