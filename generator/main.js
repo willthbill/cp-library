@@ -26,8 +26,12 @@ function copy(str){
 
 function getFolders(rootFolder){
     return new Promise((resolve, _) =>
-        fs.readdir(rootFolder, (_, files) => {
-            resolve(files);
+        fs.readdir(rootFolder, { withFileTypes: true }, (_, files) => {
+            resolve(files
+                .filter(file => file.isDirectory())
+                .filter(dir => dir.name[0] != '.')
+                .map(dir => dir.name)
+            );
         })
     );
 }
@@ -110,8 +114,7 @@ function processFile(pathname){
     for(const match of matches){
         const newPath = match[1];
         const dependency = processFile(newPath) + "\n";
-        file = file.replace(match[0], dependency);
-        file = setFileMetaData(file, pathname)
+        file = file.replace(match[0], setFileMetaData(dependency, newPath));
     }
     return removeBlankLines(file);
 }
