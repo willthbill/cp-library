@@ -1,36 +1,40 @@
-%include<tree/binary_lifting>%
+%include<data-structures/sparse-table-constant>%
 
-struct LCA : public binary_lifting {
-	vector<int> dist;
-	LCA(int _n, int _levels, int _root) : binary_lifting(_n, _levels, _root) {
-		dist = vector<int>(n + 1);
-		dist[root] = 0;
-	}
+// LCA with 0-indexed nodes, O(n lg n) build and O(1) query
+struct LCA {
+    int n, root;
+    vector<vector<int>> adj;
+    vector<pair<int,int>> levels;
+    vector<int> idxinlevels;
+    static pair<int,int> mn(pair<int,int> a, pair<int,int> b) {
+        return min(a,b);
+    }
+    SPS<pair<int,int>,mn> sps;
+    LCA() {}
+	LCA(int n, int root = 0) : n(n), root(root), adj(vector<vector<int>> (n)) {}
+	LCA(vector<vector<int>>& adj, int root = 0) : n(adj.size()), root(root), adj(adj) {
+        build_lca();
+    }
+    void add_edge(int a, int b) {
+        adj[a].push_back(b);
+        adj[b].push_back(a);
+    }
+    void dfs(int node, int p = -1, int level = 0) {
+        idxinlevels[node] = levels.size();
+        levels.push_back({level, node});
+        for(auto& ch : adj[node]) {
+            if(ch == p) continue;
+            dfs(ch, node, level + 1);
+            levels.push_back({level, node});
+        }
+    }
 	void build_lca() {
-		build();
-		stack<int> s;
-		vector<bool> vis(n + 1, false);
-		s.push(root), vis[root] = true;
-		while(s.size()){
-			int cur = s.top();
-			s.pop();
-			for(int nxt : edg[cur]) {
-				if(!vis[nxt]) {
-					vis[nxt] = true;
-					s.push(nxt);
-					dist[nxt] = dist[cur] + 1;
-				}
-			}
-		}
-	}
+        idxinlevels = vector<int> (n);
+        dfs(root);
+        sps = SPS<pair<int,int>, mn> (levels);
+    }
 	int lca(int a, int b) {
-		a++,b++;
-		int da = dist[a], db = dist[b];
-		a = query(a - 1, max(0, da - db)) + 1, b = query(b - 1, max(0, db - da)) + 1;
-		if(a == b) return a - 1;
-		for(int i = levels - 1; i >= 0; i--)
-			if(jump[a][i] != jump[b][i])
-				a = jump[a][i], b = jump[b][i];
-		return par[a] - 1;
+        a = idxinlevels[a], b = idxinlevels[b];
+        return sps.q(min(a,b), max(a,b)).second;
 	}
 };
