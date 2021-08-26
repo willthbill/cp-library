@@ -1,10 +1,14 @@
-%include<other/counting-sort>%
-
-vector<int> get_suffix_array(string s) {
-    s += "$";
-    int n = (int)s.size();
+﻿//https://codeforces.com/edu/course/2/lesson/2/2/practice/contest/269103/problem/A
+#include "bits/stdc++.h"
+using namespace std;
+typedef long long ll;
+#define fs first
+#define sc second
+#define endl '\n'
+vector<int> sort_cyclic_shifts(string const& s) {
+    int n = s.size();
     const int alphabet = 256;
-        vector<int> p(n), c(n), cnt(max(alphabet, n), 0);
+    vector<int> p(n), c(n), cnt(max(alphabet, n), 0);
     for (int i = 0; i < n; i++)
         cnt[s[i]]++;
     for (int i = 1; i < alphabet; i++)
@@ -43,6 +47,28 @@ vector<int> get_suffix_array(string s) {
         }
         c.swap(cn);
     }
-    p.erase(p.begin()); // empty suffix
     return p;
+}
+vector<int> suffix_array_construction(string s) {
+    s += "$";
+    vector<int> sorted_shifts = sort_cyclic_shifts(s);
+    sorted_shifts.erase(sorted_shifts.begin());
+    return sorted_shifts;
+}
+void solve() {
+	cin.sync_with_stdio(false), cin.tie(NULL);
+	string s; cin >> s;
+	vector<int> P = suffix_array_construction(s);
+    cout << s.length() << " ";
+	for (int i = 0; i < s.size(); i++) cout << P[i] << ' ';
+    cout << endl;
+}
+
+signed main() {
+	cin.sync_with_stdio(false); cin.tie(nullptr);
+	/*ll t;
+	cin >> t;
+	rep(i, 0, t)*/
+	solve();
+	return 0;
 }
