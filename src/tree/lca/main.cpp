@@ -8,7 +8,6 @@ struct LCA : public binary_lifting {
 	}
 	void build_lca() {
 		build();
-		//cout << "boop" << endl;
 		stack<int> s;
 		vector<bool> vis(n + 1, false);
 		s.push(root), vis[root] = true;

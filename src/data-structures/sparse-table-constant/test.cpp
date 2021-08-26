@@ -47,35 +47,38 @@ node* build(int l, int r) {
 	return cur;
 }
  
-int hik(int n) {
-    int k = 0;
-    while(n >>= 1) k++;
-    return k;
-}
- 
+// BEGIN code block of: data-structures/sparse-table-constant
+// Standard message: The following is code from https://github.com/williamMBDK/cp-library but was copied from a local copy of the repository. Changes to the original source may have been done here.
+// this is for getting for example min range queries in O(1)
+// with O(n log n) precomputation
 template<class T, T(*F)(T,T)>
-struct RQA { // requires F(x, F(x, x)) = F(F(x, x), x) = x
+struct SPS { // requires F(x, F(x, x)) = F(F(x, x), x) = x
     vector<vector<T>> M;
+    vector<int> hik;
     int n;
-    RQA(vector<T> A) {
+    int logn;
+    SPS(){}
+    SPS(vector<T>& A) {
         n = A.size();
-        M = vector<vector<T>>(17,vector<T>(n));
-        for(int i = 0; i < n; i++) {
-            M[0][i] = A[i];
-        }
-        for(int k = 1; k < 17; k++) {
-            for(int i = 0; i < n; i++) {
-                int nxt = min(n - 1, i + (1 << (k - 1)));
-                M[k][i] = F(M[k - 1][i], M[k - 1][nxt]);
-            }
+        logn = 0;
+        while(1<<logn < n) logn++;
+        hik = vector<int> (n + 1);
+        for(int i = 2; i <= n; i++) hik[i] = hik[i/2] + 1;
+        M = vector<vector<T>>(logn,vector<T>(n));
+        for(int i = 0; i < n; i++) M[0][i] = A[i];
+        for(int k = 1; k < logn; k++) for(int i = 0; i < n; i++) {
+            int nxt = min(n - 1, i + (1 << (k - 1)));
+            M[k][i] = F(M[k - 1][i], M[k - 1][nxt]);
         }
     }
     T q(int l, int r) {
-        int k = hik(r - l + 1);
+        assert(l <= r);
+        int k = hik[r - l + 1];
         return F(M[k][l], M[k][r - (1 << k) + 1]);
     }
 };
- 
+// END code block of: data-structures/sparse-table-constant
+
 int maxF(int a, int b) {
 	return max(a, b);
 }
@@ -87,8 +90,8 @@ int minF(int a, int b) {
 int n, m; 
 vector<int> K;
 vector<vector<int>> A, B;
-vector<RQA<int, minF>> SidesValid, BSides;
-vector<RQA<int, maxF>> ASides;
+vector<SPS<int, minF>> SidesValid, BSides;
+vector<SPS<int, maxF>> ASides;
 vector<node*> Dps;
 vector<vector<int>> dp;
 vector<int> solution;
@@ -125,9 +128,9 @@ int main() {
 			sidesValid[s][i] = (A[s][i] <= K[i] && K[i] <= B[s][i]);
 			Dps[s]->change(i, 0);
 		}
-		SidesValid.pb(RQA<int, minF>(sidesValid[s]));
-        ASides.pb(RQA<int, maxF>(A[s]));
-        BSides.pb(RQA<int, minF>(B[s]));
+		SidesValid.pb(SPS<int, minF>(sidesValid[s]));
+        ASides.pb(SPS<int, maxF>(A[s]));
+        BSides.pb(SPS<int, minF>(B[s]));
         Dps[s]->change(n, 1);
 	}
     dp = vector<vector<int>>(n + 1, vector<int>(2));
