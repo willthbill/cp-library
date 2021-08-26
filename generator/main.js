@@ -59,9 +59,7 @@ function getInput(reader, completions, question){
 
 const matchString = /%\s*include<\s*(\S*)s*>\s*%/g;
 
-const outputFile = "temp-generated.cpp";
-
-function _test(){
+/*function _test(){
     let test = `
     %include<hello>%
     sdfsdf
@@ -83,7 +81,25 @@ function _test(){
     }
     console.log(test);
 }
-// _test();
+_test();*/
+
+function removeBlankLines(file) {
+    lines = file.split("\n").filter(line => line.replace(/\s/g, '').length > 0)
+    return lines.join("\n")
+}
+
+function setFileMetaData(file, pathname, withmessage = false) {
+    if(withmessage) {
+        return `// BEGIN code block of: ${pathname}
+// Standard message: The following is code from https://github.com/williamMBDK/cp-library but was copied from a local copy of the repository. Changes to the original source may have been done here.
+${file}
+// END code block of: ${pathname}`;
+    } else {
+        return `// BEGIN code block of: ${pathname}
+${file}
+// END code block of: ${pathname}`;
+    }
+}
 
 function processFile(pathname){
     let file = fs.readFileSync(
@@ -95,16 +111,15 @@ function processFile(pathname){
         const newPath = match[1];
         const dependency = processFile(newPath) + "\n";
         file = file.replace(match[0], dependency);
+        file = setFileMetaData(file, pathname)
     }
-    return setFileMetaData(file, pathname);
+    return removeBlankLines(file);
 }
 
-function setFileMetaData(file, pathname) {
-    return `// BEGIN code block of: ${pathname}
-// Standard message: The following is code from https://github.com/williamMBDK/cp-library but was copied from a local copy of the repository. Changes to the original source may have been done here.
-${file}
-// END code block of: ${pathname}
-`;
+function printFile(file) {
+    console.log("============================ content ============================");
+    console.log(file);
+    console.log("=================================================================");
 }
 
 async function run(){
@@ -115,35 +130,34 @@ async function run(){
         category = await getInput(
             category_reader,
             categories,
-            "Input code category: "
+            "Input category: "
         );
         const concepts = await getFolders(`${directory}/../src/${category}`);
         const concept_reader = getReader(concepts);
         concept = await getInput(
             concept_reader,
             concepts,
-            "Input algorithm/datastructure: "
+            "Input concept: "
         );
         let file = processFile(`${category}/${concept}`);
+        file = setFileMetaData(file, true);
+        console.log(`${outputColors.green}Generated content for ${category}/${concept}`);
         copy(file);
-        fs.writeFileSync(outputFile, file);
+        console.log(`${outputColors.green}Content copied to clipboard`);
+        console.log(`${outputColors.reset}`);
+        printFile(file);
     } catch(e){
         console.log(`${outputColors.red}The following error occured\n`);
         console.log(`${outputColors.reset}${e}`);
         process.exit(0);
     }
-    console.log();
-    console.log(`${outputColors.green}Generated content for ${category}/${concept}`);
-    console.log(`${outputColors.green}Content copied to clipboard`);
-    console.log(`${outputColors.green}Content written to ${outputFile} (in your current directory)`);
-    console.log(`${outputColors.reset}`);
 }
 
 if(process.argv.length == 4){ // silent
     const category = process.argv[2];
     const concept = process.argv[3];
-    let file = processFile(`${category}/${concept}`);
-    fs.writeFileSync(outputFile, file);
+    let file = setFileMetaData(processFile(`${category}/${concept}`), `${category}/${concept}`, true);
+    console.log(file)
 }else{
     run();
 }
