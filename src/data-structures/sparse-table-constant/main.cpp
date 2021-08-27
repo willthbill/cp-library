@@ -10,7 +10,7 @@ struct SPS { // requires F(x, F(x, x)) = F(F(x, x), x) = x
     SPS(vector<T>& A) {
         n = A.size();
         logn = 0;
-        while(1<<logn < n) logn++;
+        while(1<<logn <= n) logn++;
         hik = vector<int> (n + 1);
         for(int i = 2; i <= n; i++) hik[i] = hik[i/2] + 1;
         M = vector<vector<T>>(logn,vector<T>(n));
