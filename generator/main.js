@@ -143,7 +143,7 @@ async function run(){
             "Input concept: "
         );
         let file = processFile(`${category}/${concept}`);
-        file = setFileMetaData(file, true);
+        file = setFileMetaData(file, `${category}/${concept}`, true);
         console.log(`${outputColors.green}Generated content for ${category}/${concept}`);
         copy(file);
         console.log(`${outputColors.green}Content copied to clipboard`);
