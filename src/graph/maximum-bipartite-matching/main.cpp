@@ -1,7 +1,7 @@
 // https://github.com/williamMBDK/cp-library/blob/main/src/graph/maximum-bipartite-matching/main.cpp
 #define NIL 0
 #define INF (1<<28)
-struct MBP // maximum bipartite matching, 1-INDEXED!
+struct MBP // maximum bipartite matching, 0-INDEXED!
 {
 public:
 	MBP(int _n, int _m) : n(_n), m(_m), sz(_n + _m + 2)
@@ -19,6 +19,7 @@ public:
 
 	void add_edge(int a, int b)
 	{
+        a++,b++;
 		G[a].pb(b + n);
 		G[b + n].pb(a);
 	}
