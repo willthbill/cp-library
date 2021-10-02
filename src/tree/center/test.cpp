@@ -1,3 +1,4 @@
+//https://atcoder.jp/contests/abc221/tasks/abc221_f
 #include "bits/stdc++.h"
 #include<sstream>
 using namespace std;
@@ -114,22 +115,22 @@ struct tree_center {
 		vector<int> dist(n), par(n);
 		dfs(0, dist, par);
 		int mxnode = 0;
-		rep(i,0,n) if(dist[i] > dist[mxnode]) mxnode = i;
+		for(int i = 0; i < n; i++) if(dist[i] > dist[mxnode]) mxnode = i;
 		dfs(mxnode, dist, par);
 		int diameter = 0;
-		rep(i,0,n) if(dist[i] > diameter) diameter = dist[i];
+		for(int i = 0; i < n; i++) if(dist[i] > diameter) diameter = dist[i];
 		if(diameter % 2 == 0) {
 			int center = 0;
-			rep(i,0,n) if(dist[i] > dist[center]) center = i;
+			for(int i = 0; i < n; i++) if(dist[i] > dist[center]) center = i;
 			for(int k = 0; k < diameter / 2; k++) center = par[center];
 			return {{center, center}, diameter};
 		}else {
 			int center1 = 0;
-			rep(i,0,n) if(dist[i] > dist[center1]) center1 = i;
+			for(int i = 0; i < n; i++) if(dist[i] > dist[center1]) center1 = i;
 			for(int k = 0; k < diameter / 2; k++) center1 = par[center1];
 			dfs(center1, dist, par);
 			int center2 = 0;
-			rep(i,0,n) if(dist[i] > dist[center2]) center2 = i;
+			for(int i = 0; i < n; i++) if(dist[i] > dist[center2]) center2 = i;
 			for(int k = 0; k < diameter / 2; k++) center2 = par[center2];
 			return {{center1, center2}, diameter};
 		}
