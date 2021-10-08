@@ -1,5 +1,5 @@
 template<class Int>
-struct BIT{ // all input should be 0-indexed, only supports sum-queries
+struct BIT { // all input should be 0-indexed, only supports sum-queries
     // one of the following may be used
         // rangequery: q(idx), q(a,b), add(idx,val), set(idx,Val), setupsingle(initial)
         // rangeupdate: q(idx), rangeadd(a,b,val), setuprange(initial)
@@ -33,10 +33,10 @@ struct BIT{ // all input should be 0-indexed, only supports sum-queries
     BIT(int _n){
         setup(_n);
     }
-    void setupsingle(vector<Int>& initial){
+    void setupsingle(vector<Int> initial){
         for(int i = 0; i < n - 1; i++) add(i,initial[i]);
     }
-    void setuprange(vector<Int>& initial){
+    void setuprange(vector<Int> initial){
         for(int i = 0; i < n - 1; i++) rangeadd(i,i,initial[i]);
     }
 };
