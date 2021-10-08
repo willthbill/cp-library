@@ -1,4 +1,6 @@
-// Online source for this code: https://codeforces.com/contest/1477/submission/105720581
+// Online source for this code:
+//  https://codeforces.com/contest/1477/submission/105720581
+//  https://codeforces.com/contest/1580/submission/130598422
 /**
  * Description: modular arithmetic operations
  * Source:
@@ -24,7 +26,7 @@ template<int MOD, int RT> struct mint {
 	friend bool operator<(const mint& a, const mint& b) {
 		return a.v < b.v; }
 	friend void re(mint& a) { ll x; re(x); a = mint(x); }
-	friend str ts(mint a) { return ts(a.v); }
+	friend string ts(mint a) { return ts(a.v); }
 
 	mint& operator+=(const mint& m) {
 		if ((v += m.v) >= MOD) v -= MOD;

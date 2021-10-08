@@ -35,3 +35,9 @@ Here is an example.
 
 // your code
 ```
+
+## Other links
+- https://github.com/ecnerwala/cp-book
+- https://github.com/kth-competitive-programming/kactl
+- https://vlecomte.github.io/cp-geo.pdf
+- https://cses.fi/book/book.pdf
