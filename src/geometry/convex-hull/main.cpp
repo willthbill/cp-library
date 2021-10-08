@@ -29,7 +29,6 @@ class ConvexHull {
         S.push(p);
         return res;
     }
-public:
     static void convex_hull(stack<pair<T,T>>& S, vector<pair<T,T>> points) {
         int n = (int)points.size();
         if(n == 0) return;
@@ -71,6 +70,7 @@ public:
             S.push(points[i]);
         }
     }
+public:
     static vector<pair<T,T>> convex_hull(vector<pair<T, T>>& points) {
         stack<pair<T,T>> s;
         convex_hull(s, points);
