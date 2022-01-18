@@ -1,6 +1,3 @@
-#include <bits/stdc++.h>
-using namespace std;
-
 // Find brigdes and articulation points in undirected graphs
 // Vertices numbered from 0 to n-1
 struct BridgesAndArtPoints {
