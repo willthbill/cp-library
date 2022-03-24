@@ -41,3 +41,4 @@ Here is an example.
 - https://github.com/kth-competitive-programming/kactl
 - https://vlecomte.github.io/cp-geo.pdf
 - https://cses.fi/book/book.pdf
+- https://github.com/jakobkogler/Algorithm-DataStructures
