@@ -13,8 +13,10 @@ struct hash_util {
 		for (int i = 1; i < max_length; i++)
 			pw[i] = mmul(pw[i - 1], P, MOD);
 		inv = vector<ll>(max_length);
-		for (int i = 0; i < max_length; i++)
-			inv[i] = mpow(pw[i], MOD - 2, MOD); // IMPROVE
+		int pinv = mpow(P, MOD - 2, MOD);
+		inv[0] = 1;
+		for (int i = 1; i < max_length; i++)
+			inv[i] = mmul(inv[i - 1], pinv, MOD); 
 	}
 	ll ppow(int e) { // P^e
 		//assert(e < range);
