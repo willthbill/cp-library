@@ -1,103 +1,124 @@
-class Node {
+template<int SIZE>
+class XORTrie {
 public:
-    int value;
-    int index;
-    vector<Node*> child;
-    Node(int value, int index, Node* l, Node* r):
-        value(value), index(index), child({l, r}) {}
-    ~Node() {
-        for (int i = 0; i < 2; i++) {
-            if (child[i] != nullptr) {
-                delete child[i];
+    class Node {
+    public:
+        Node* one;
+        Node* zero;
+        int cnt;
+        int depth;
+        Node(int cnt, int depth):
+            one(nullptr), zero(nullptr), cnt(cnt), depth(depth) {}
+        ~Node() {
+            if (one != nullptr) {
+                delete one;
+            }
+            if (zero != nullptr) {
+                delete zero;
             }
         }
-    }
-    void set(int value, int index) {
-        this->value = value;
-        this->index = index;
-    }
-    tuple<int, int> get() {
-        return {value, index};
-    }
-};
- 
-class XOR_Trie {
-public:
+    };
+    int n;
     Node* root;
-    XOR_Trie() {
-        root = new_node();
-    }
-    ~XOR_Trie() {
-        delete root;
-    }
-    Node* new_node() {
-        return new Node(-1, -1, nullptr, nullptr);
-    }
-    void insert(int value, int index) {
-        Node* node = root;
-        for (int bit = 30; bit >= 0; bit--) {
-            int b = value>>bit&1;
-            if (bit == 0) {
-                if (node->child[b] == nullptr) {
-                    node->child[b] = new_node();
-                }
-                node->child[b]->set(value, index);
-            } else {
-                Node* next;
-                if (node->child[b] == nullptr) {
-                    node->child[b] = new_node();
-                }
-                next = node->child[b];
-                node = next;
-            }
+    XORTrie() {}
+    ~XORTrie() {
+        if (root != nullptr) {
+            delete root;
         }
     }
-    void remove(int value, int index) {
-        remove(value, index, 30, root);
+    void init() {
+        n = 0;
+        root = new Node(0, SIZE);
     }
-    bool remove(int value, int index, int bit, Node* node) {
-        if (bit == -1) {
-            return false;
-        }
-        int b = value>>bit&1;
-        if (remove(value, index, bit-1, node->child[b])) {
+    bool exist(Node* node, i64 x) {
+        int d = node->depth;
+        if (d == -1) {
             return true;
         }
-        if (bit == 0) {
-            delete node->child[b];
-            node->child[b] = nullptr;
+        if (x>>d&1) {
+            if (node->one != nullptr) {
+                return exist(node->one, x);
+            }
         } else {
-            if (node->child[b]->child[0] == nullptr && 
-                node->child[b]->child[1] == nullptr) 
-            {
-                delete node->child[b];
-                node->child[b] = nullptr;
-            } else {
-                return true;
+            if (node->zero != nullptr) {
+                return exist(node->zero, x);
             }
         }
         return false;
     }
-    tuple<int, int> query(int value) {
-        Node* node = root;
-        for (int bit = 30; bit >= 0; bit--) {
-            int b = value>>bit&1;
-            if (bit == 0) {
-                if (node->child[b] != nullptr) {
-                    return node->child[b]->get();
-                } else {
-                    return node->child[!b]->get();
-                }
-            } else {
-                if (node->child[0] == nullptr) {
-                    node = node->child[1];
-                } else if (node->child[1] == nullptr) {
-                    node = node->child[0];
-                } else {
-                    node = node->child[b];
-                }
+    bool exist(i64 x) { return exist(root, x); }
+    void insert(Node* node, i64 x) {
+        int d = node->depth;
+        if (d != root->depth) {
+            node->cnt++;
+        }
+        if (d == -1) {
+            return;
+        }
+        if (x>>d&1) {
+            if (node->one == nullptr) {
+                node->one = new Node(0, d-1);
+            }
+            insert(node->one, x);
+        } else {
+            if (node->zero == nullptr) {
+                node->zero = new Node(0, d-1);
+            }
+            insert(node->zero, x);
+        }
+    }
+    void insert(i64 x) { insert(root, x), n++; }
+    void erase(Node* node, i64 x) {
+        int d = node->depth;
+        if (d != root->depth) {
+            node->cnt--;
+        }
+        if (d == -1) {
+            return;
+        }
+        if (x>>d&1) {
+            if (node->one == nullptr) {
+                node->one = new Node(0, d-1);
+            }
+            erase(node->one, x);
+        } else {
+            if (node->zero == nullptr) {
+                node->zero = new Node(0, -1);
+            }
+            erase(node->zero, x);
+        }
+    }
+    void erase(i64 x) { erase(root, x), n--; }
+    int qry(Node* node, i64 a, i64 b) {
+        int d = node->depth;
+        if (d == -1) {
+            return 0;
+        }
+        int cnt = 0;
+        if (((a>>d&1) && (b>>d&1))) {
+            if (node->one != nullptr) {
+                cnt += node->one->cnt;
             }
         }
-        return {-1, -1};
+        if ((!(a>>d&1) && (b>>d&1))) {
+            if (node->zero != nullptr) {
+                cnt += node->zero->cnt;
+            }
+        }
+        if (((a>>d&1) && (b>>d&1)) || (!(a>>d&1) && !(b>>d&1))) {
+            if (node->zero != nullptr) {
+                cnt += qry(node->zero, a, b);
+            }
+        } else if ((!(a>>d&1) && (b>>d&1)) || ((a>>d&1) && !(b>>d&1))) {
+            if (node->one != nullptr) {
+                cnt += qry(node->one, a, b);
+            }
+        }
+        return cnt;
+    }
+    int qry(i64 a, i64 b) {
+        /* count x, where x ^ a < b */
+        return qry(root, a, b);
     }
 };
+typedef XORTrie<30> trie; // <- able to store values <= 2^30
