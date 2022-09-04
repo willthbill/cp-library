@@ -1,0 +1,92 @@
+class StringHash {
+public:
+    string s;
+    int n;
+    StringHash* t_hash;
+    const i64 MOD1 = 1e9+7;
+    const i64 MOD2 = 1e9+9;
+    const i64 MOD3 = 1e9+23;
+    const i64 C = 1e9+7;
+    vector<i64> P1;
+    vector<i64> P2;
+    vector<i64> P3;
+    vector<i64> H1;
+    vector<i64> H2;
+    vector<i64> H3;
+    StringHash() {}
+    void init(string s) {
+        t_hash = nullptr;
+        this->s = s;
+        n = (int)s.size();
+        P1.resize(n, 1);
+        P2.resize(n, 1);
+        P3.resize(n, 1);
+        H1.resize(n);
+        H2.resize(n);
+        H3.resize(n);
+        H1[0] = H2[0] = H3[0] = s[0];
+        for (int i = 1; i < n; i++) {
+            P1[i] = P1[i-1]*C%MOD1;
+            P2[i] = P2[i-1]*C%MOD2;
+            P3[i] = P3[i-1]*C%MOD3;
+            H1[i] = (H1[i-1]*C+s[i])%MOD1;
+            H2[i] = (H2[i-1]*C+s[i])%MOD2;
+            H3[i] = (H3[i-1]*C+s[i])%MOD3;
+        }
+    }
+    ~StringHash() {
+        delete t_hash;
+    }
+    i64 substr_hash(int l, int r, int t) {
+        if (t == 1) {
+            i64 hash = H1[r];
+            if (l) {
+                hash -= H1[l-1]*P1[r-l+1]%MOD1;
+                if (hash < 0) hash += MOD1;
+                return hash;
+            }
+            return hash;
+        }
+        if (t == 2) {
+            i64 hash = H2[r];
+            if (l) {
+                hash -= H2[l-1]*P2[r-l+1]%MOD2;
+                if (hash < 0) hash += MOD2;
+                return hash;
+            }
+            return hash;
+        }
+        i64 hash = H3[r];
+        if (l) {
+            hash -= H3[l-1]*P3[r-l+1]%MOD3;
+            if (hash < 0) hash += MOD3;
+            return hash;
+        }
+        return hash;
+    }
+    bool equal(int l, int r, StringHash& other, int a, int b) {
+        if (l < 0 || a < 0 || r >= n || b >= other.n || r-l+1 <= 0 || b-a+1 <= 0) {
+            cout << "StringHash::equal out of bounds" << endl;
+            exit(0);
+        }
+        return other.substr_hash(a, b, 1) == substr_hash(l, r, 1) &&
+               other.substr_hash(a, b, 2) == substr_hash(l, r, 2) &&
+               other.substr_hash(a, b, 3) == substr_hash(l, r, 3);
+    }
+    bool palindrome(int l, int r) {
+        if (t_hash == nullptr) {
+            string t = s;
+            reverse(all(t));
+            t_hash = new StringHash();
+            t_hash->init(t);
+        }
+        int sz = (r-l+1);
+        if (sz == 1) {
+            return true;
+        }
+        if (sz%2 == 0) {
+            return equal(l, l+sz/2, *t_hash, n-r-1, n-r-1+sz/2);
+        }
+        return equal(l, l+sz/2-1, *t_hash, n-r-1, n-sz/2-l-2);
+    }
+};

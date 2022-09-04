@@ -1,0 +1,53 @@
+map<i64, i64> factorize(i64 n) {
+    map<i64, i64> mp;
+    vector<i64> factors;
+    for (i64 x = 2; x*x <= n; x++) {
+        while (n%x == 0) {
+            factors.push_back(x);
+            n /= x;
+        }
+    }
+    if (n > 1) factors.push_back(n);
+    for (auto x : factors) mp[x]++;
+    return mp;
+}
+
+vector<i64> get_sieve(i64 n) {
+    /* O(n*log(log(n))) */
+    vector<i64> sieve(n+1, 0);
+    for (i64 x = 2; x <= n; x++) {
+        if (sieve[x]) continue;
+        for (i64 i = x*2; i <= n; i += x) {
+            sieve[i] = x;
+        }
+    }
+    return sieve;
+}
+
+tuple<i64, i64> extended_gcd(i64 a, i64 b) {
+    /*
+        solution to ax + by = c, where gcd(a, b) | c
+        O(log(a+b))
+    */
+    if (b == 0) return {1, 0};
+    tuple<i64, i64> t = extended_gcd(b, a%b);
+    return {get<1>(t), get<0>(t)-a/b*get<1>(t)};
+}
+
+i64 divisor_cnt(i64 n) {
+    i64 cnt = 1;
+    map<i64, i64> factors = factorize(n);
+    for (auto p : factors) cnt *= p.second+1;
+    return cnt;
+}
+
+vector<i64> compute_divisors(i64 n) {
+    vector<i64> A;
+    for (i64 i = 1; i*i <= n; i++) {
+        if (n%i == 0) {
+            if (i*i != n) A.push_back(n/i);
+            A.push_back(i);
+        }
+    }
+    return A;
+}

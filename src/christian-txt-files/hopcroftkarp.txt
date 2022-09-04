@@ -1,0 +1,137 @@
+/*
+    link -> https://en.wikipedia.org/wiki/Hopcroft%E2%80%93Karp_algorithm
+
+    testet on:
+    - https://judge.yosupo.jp/submission/96643
+    - https://csacademy.com/contest/archive/task/no-prime-sum
+*/
+class HopcroftKarp {
+public:
+    int n;
+    vector<vector<int>> adj;
+    vector<int> color;
+    vector<i64> dist;
+    vector<int> M;
+    vector<int> X;
+    vector<int> Z;
+    HopcroftKarp() {}
+    void init(int n) {
+        this->n = n;
+        adj.resize(n);
+        color.resize(n);
+        dist.resize(n+1);
+        M.resize(n, n);
+        X.resize(n);
+        Z.resize(n);
+    }
+    void add_edge(int u, int v) {
+        /* undirected edge from left node u to right node v */
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+        X[u] = 1;
+    }
+    bool bfs() {
+        queue<int> q;
+        for (int u = 0; u < n; u++) {
+            if (X[u]) {
+                if (M[u] == n) {
+                    dist[u] = 0;
+                    q.push(u);
+                } else {
+                    dist[u] = oo;
+                }
+            }
+        }
+        dist[n] = oo;
+        while (len(q)) {
+            int u = q.front();
+            q.pop();
+            if (dist[u] < dist[n]) {
+                for (auto v : adj[u]) {
+                    if (dist[M[v]] == oo) {
+                        dist[M[v]] = dist[u]+1;
+                        q.push(M[v]);
+                    }
+                }
+            }
+        }
+        return dist[n] != oo;
+    }
+    bool dfs(int u) {
+        if (u != n) {
+            for (auto v : adj[u]) {
+                if (dist[u] != oo && dist[M[v]] == dist[u]+1 && dfs(M[v])) {
+                    M[u] = v;
+                    M[v] = u;
+                    return true;
+                }
+            }
+            dist[u] = oo;
+            return false;
+        }
+        return true;
+    }
+    vector<pair<int, int>> get_max_matching() {
+        i64 flow = 0;
+        while (bfs()) {
+            for (int u = 0; u < n; u++) {
+                if (X[u] && M[u] == n && dfs(u)) {
+                    flow++;
+                }
+            }
+        }
+        vector<pair<int, int>> edges;
+        for (int u = 0; u < n; u++) {
+            if (X[u] && M[u] != n && M[M[u]] == u) {
+                edges.push_back({u, M[u]});
+            }
+        }
+        return edges;
+    }
+    void alternate_path(int u) {
+        Z[u] = 1;
+        for (auto v : adj[u]) {
+            if (X[u] && M[u] == v && M[v] == u) {
+                continue;
+            }
+            if (!X[u] && !(M[u] == v && M[v] == u)) {
+                continue;
+            }
+            if (color[v]) {
+                continue;
+            }
+            color[v] = 1;
+            alternate_path(v);
+        }
+    }
+    vector<int> get_node_cover() {
+        vector<pair<int, int>> E = get_max_matching();
+        for (int u = 0; u < n; u++) {
+            if (X[u] && M[u] == n) {
+                if (color[u]) {
+                    continue;
+                }
+                color[u] = 1;
+                alternate_path(u);
+            }
+        }
+        vector<int> node_cover(n);
+        for (int u = 0; u < n; u++) {
+            if ((X[u] && !Z[u]) || (!X[u] && Z[u])) {
+                node_cover[u] = 1;
+            }
+        }
+        return node_cover;
+    }
+    vector<int> get_independent_set() {
+        vector<int> node_cover = get_node_cover();
+        for (int u = 0; u < n; u++) {
+            if (node_cover[u]) {
+                node_cover[u] = 0;
+            } else {
+                node_cover[u] = 1;
+            }
+        }
+        return node_cover;
+    }
+};

@@ -1,0 +1,111 @@
+class SparseSegmentTree {
+public:
+    struct Value {
+        i64 value;
+        void operator=(const i64& x) { this->value = x; }
+        void operator+=(const i64& x) { this->value += x; }
+        explicit operator i64() const { return value; }
+    };
+    struct Node {
+        Value value; i64 lazy; bool assigned; i64 assign; i64 x; i64 y; Node* left; Node* right;
+    };
+    i64 N;
+    Node* root;
+    Value identity;
+    SparseSegmentTree() {}
+    void init(i64 n) {
+        N = nextpow2(n);
+        identity = 0;
+        root = new Node{identity, 0, false, 0, 0, N-1, nullptr, nullptr};
+    }
+    Value merge(const Value& a, const Value& b) {
+        return {a.value+b.value};
+    }
+    void propagate(Node* node) {
+        /* 
+            if sum type queries then add *(node->y-node->x+1)
+            when assigning or adding to value
+        */
+        if (node->assigned) {
+            node->value = node->assign*(node->y-node->x+1);
+            if (node->left != nullptr) {
+                node->right->assign = node->left->assign = node->assign;
+                node->right->lazy = node->left->lazy = 0;
+                node->right->assigned = node->left->assigned = true;
+            }
+            node->assign = 0;
+            node->assigned = false;
+        }
+        node->value += node->lazy*(node->y-node->x+1);
+        if (node->left != nullptr) {
+            node->left->lazy += node->lazy;
+            node->right->lazy += node->lazy;
+        }
+        node->lazy = 0;
+    }
+    Value qry(Node* node, i64 a, i64 b) {
+        assert(node != nullptr);
+        i64 d = node->x+(node->y-node->x)/2;
+        if (node->left == nullptr) {
+            node->left = new Node{identity, 0, false, 0, node->x, d, nullptr, nullptr};
+        }
+        if (node->right == nullptr) {
+            node->right = new Node{identity, 0, false, 0, d+1, node->y, nullptr, nullptr};
+        }
+        propagate(node);
+        if (node->y < a || b < node->x) return identity;
+        if (node->x >= a && b >= node->y) return node->value;
+        return merge(qry(node->left, a, b), qry(node->right, a, b));
+    }
+    void add(Node* node, i64 a, i64 b, i64 u) {
+        assert(node != nullptr);
+        i64 d = node->x+(node->y-node->x)/2;
+        if (node->left == nullptr) {
+            node->left = new Node{identity, 0, false, 0, node->x, d, nullptr, nullptr};
+        }
+        if (node->right == nullptr) {
+            node->right = new Node{identity, 0, false, 0, d+1, node->y, nullptr, nullptr};
+        }
+        propagate(node);
+        if (node->y < a || b < node->x) return;
+        if (node->x >= a && b >= node->y) {
+            node->lazy += u;
+        } else {
+            add(node->left, a, b, u);
+            add(node->right, a, b, u);
+            node->value = merge(node->left->value, node->right->value);
+        }
+        propagate(node);
+    }
+    void upd(Node* node, i64 a, i64 b, i64 u) {
+        assert(node != nullptr);
+        i64 d = node->x+(node->y-node->x)/2;
+        if (node->left == nullptr) {
+            node->left = new Node{identity, 0, false, 0, node->x, d, nullptr, nullptr};
+        }
+        if (node->right == nullptr) {
+            node->right = new Node{identity, 0, false, 0, d+1, node->y, nullptr, nullptr};
+        }
+        propagate(node);
+        if (node->y < a || b < node->x) return;
+        if (node->x >= a && b >= node->y) {
+            node->assign = u;
+            node->assigned = true;
+            node->lazy = 0;
+        } else {
+            upd(node->left, a, b, u);
+            upd(node->right, a, b, u);
+            node->value = merge(node->left->value, node->right->value);
+        }
+        propagate(node);
+    }
+    i64 qry(i64 a, i64 b) {
+        return qry(root, a, b).value;
+    }
+    void add(i64 a, i64 b, i64 u) {
+        add(root, a, b, u);
+    }
+    void upd(i64 a, i64 b, i64 u) {
+        upd(root, a, b, u);
+    }
+};

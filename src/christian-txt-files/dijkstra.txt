@@ -1,0 +1,23 @@
+/*
+    src is a list of src nodes and their minimum cost
+    dist will contain cost to the closest src node
+    for sssp simply provide a src list of length 1
+*/
+void dijkstra(vector<vector<pair<i64, i64>>>& adj, vector<pair<int, i64>> src, vector<i64>& dist) {
+    set<pair<i64, i64>> S;
+    for (auto p : src) {
+        dist[p.first] = p.second;
+        S.insert({p.second, p.first});
+    }
+    while (len(S)) {
+        i64 u = S.begin()->second;
+        S.erase(S.begin());
+        for (auto [w, v] : adj[u]) {
+            if (dist[u]+w < dist[v]) {
+                S.erase({dist[v], v});
+                dist[v] = dist[u]+w;
+                S.insert({dist[v], v});
+            }
+        }
+    }
+}

@@ -1,0 +1,35 @@
+struct Rectangle { d64 x1, y1, x2, y2; };
+
+d64 area(Rectangle a) {
+    return (a.x2-a.x1)*(a.y2-a.y1);
+}
+
+d64 two_overlap(Rectangle a, Rectangle b) {
+    return max<d64>(0, min(a.x2, b.x2)-max(a.x1, b.x1))*
+           max<d64>(0, min(a.y2, b.y2)-max(a.y1, b.y1));
+}
+
+d64 three_overlap(Rectangle a, Rectangle b, Rectangle c) {
+    return max<d64>(0, min({a.x2, b.x2, c.x2})-max({a.x1, b.x1, c.x1}))*
+           max<d64>(0, min({a.y2, b.y2, c.y2})-max({a.y1, b.y1, c.y1}));
+}
+
+struct Circle { d64 x; d64 y; d64 r; };
+
+d64 area(Circle a, Circle b) {
+    if (a.r < b.r) {
+        swap(a, b);
+    }
+    d64 d = hypot(a.x-b.x, a.y-b.y);
+    a.x = 0, a.y = 0, b.x = d, b.y = 0;
+    if ((d < a.r+b.r) == false) {
+        return 0;
+    }
+    if ((d > a.r-b.r) == false) {
+        return acos(-1)*b.r*b.r;
+    }
+    d64 d1 = (a.r*a.r-b.r*b.r+d*d)/(2*d);
+    d64 d2 = (b.r*b.r-a.r*a.r+d*d)/(2*d);
+    assert(abs(d2-(d-d1)) < 0.000001);
+    return a.r*a.r*(2*acos(d1/a.r)-sin(2*acos(d1/a.r)))/2+b.r*b.r*(2*acos(d2/b.r)-sin(2*acos(d2/b.r)))/2;
+}

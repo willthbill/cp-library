@@ -1,0 +1,25 @@
+i64 ternary_search(i64 l, i64 r, function<i64(i64)> f) {
+    /*
+        finds x such that
+        l < x ==> f(l) >= f(x)
+        x < r ==> f(x) <= f(r)
+        x is minimum point of f
+        for maximum point
+        use g(x) = oo-f(x)
+    */
+    while(r-l > 4) {
+        i64 m1 = l+(r-l)/2;
+        i64 m2 = m1+1;
+        if(f(m1) > f(m2)) l = m1;
+        else r = m2;
+    }
+    i64 mn = oo, k;
+    for(i64 i = l; i <= r; i++) {
+        i64 x = f(i);
+        if (x < mn) {
+            mn = x;
+            k = i;
+        }
+    }
+    return k;
+}

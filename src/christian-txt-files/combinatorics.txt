@@ -1,0 +1,82 @@
+i64 fast_exp(i64 a, i64 b, i64 m=1000000007) {
+    i64 ans = 1;
+    while (b >= 1) {
+        if (b%2) ans = ans*a%m;
+        b /= 2;
+        a = a*a%m;
+    }
+    return ans;
+}
+i64 inv(i64 x, i64 m=1000000007) {
+    return fast_exp(x, m-2, m);
+}
+vector<i64> fact_table(int n, i64 m=1000000007) {
+    vector<i64> fact(n+1, 1);
+    for (int i = 1; i <= n; i++) {
+        fact[i] = fact[i-1]*i%m;
+    }
+    return fact;
+}
+i64 nck(i64 a, i64 b, vector<i64>& fact, i64 m=1000000007) {
+    assert(a < len(fact));
+    return fact[a]*inv(fact[b]*fact[a-b]%m, m)%m;
+}
+i64 catalan(int n, vector<i64>& fact, i64 m=1000000007) {
+    return nck(2*n, n, m, fact)*inv(n+1, m)%m;
+}
+i64 npk(i64 a, i64 b, vector<i64>& fact, i64 m=1000000007) {
+    return fact[a]*inv(fact[a-b], m)%m;
+}
+i64 derangements(int n, i64 m=1000000007) {
+    /*
+        Computes the number of derangements mod m
+        Permutations where a[i] != i
+	    Mathematical fomula: floor(n!/e+1/2)
+        O(n)
+    */
+    i64 ans = 1;
+    for (int i = 1; i <= n; i++) {
+        ans = ans*i%n+(i%2 ? -1 : 1);
+    }
+    return ans;
+}
+i64 grid_path_cnt(int n, int x, int y, vector<i64>& fact, i64 m=1000000007) {
+    /*
+        Computes the number of paths from (x, y) to (n, n)
+        without crossing the diagonal (0, 0) -> (n, n)
+        O(log(m))
+    */
+    i64 ans = nck(2*n-(x+y), n-x, m, fact);
+    ans -= nck(2*n-(x+y), n-x-1, m, fact);
+    ans = (ans+m)%m;
+    return ans;
+}
+i64 burnside_necklace(int n, int k, i64 m=1000000007) {
+    /*
+        n pearls and k colors
+        necklace are the same if rotation makes them similar
+        O(n*log(n))
+    */
+    i64 ans = 0;
+    for (int i = 0; i < n; i++) {
+        ans = (ans+(fast_exp(k, __gcd(i, n), m))*inv(n, m)%m)%m;
+    }
+    return ans;
+}
+i64 burnside_grid(int n, i64 m=1000000007) {
+    /*
+        n by n grid and 2 colors
+        grids are the same if rotation makes them similar
+        O(log(m))
+    */
+    i64 ans = 0;
+    if (n < 3) return n == 1 ? 2 : 6;
+    i64 N = n/2;
+    i64 chain_cnt = (n%2 ? N*(N+1) : N*N)%(m-1);
+    for (int i = 0; i < 4; i++) {
+        i64 ck = fast_exp(fast_exp(2, __gcd(i, 4), m), chain_cnt, m);
+        ck = ck*(n%2 ? 2 : 1)%m;
+        ans = (ans+ck*inv(4, m)%m)%m;
+    }
+    return ans;
+}

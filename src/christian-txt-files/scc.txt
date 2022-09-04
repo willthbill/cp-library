@@ -1,0 +1,63 @@
+void topsort(vector<vector<int>>& adj, vector<int>& color, vector<int>& T, int node) {
+    for (auto nei : adj[node]) {
+        if (color[nei]) {
+            continue;
+        }
+        color[nei] = 1;
+        topsort(adj, color, T, nei);
+    }
+    T.push_back(node);
+}
+
+vector<int> get_topsort(vector<vector<int>>& adj) {
+    int n = len(adj);
+    vector<int> T;
+    vector<int> color(n);
+    for (int node = 0; node < n; node++) {
+        if (color[node]) {
+            continue;
+        }
+        color[node] = 1;
+        topsort(adj, color, T, node);
+    }
+    return T;
+}
+
+void flood_fill(vector<vector<int>>& adj_t, vector<int>& color, vector<int>& scc, int node, int id) {
+    scc[node] = id;
+    for (auto nei : adj_t[node]) {
+        if (color[nei]) {
+            continue;
+        }
+        color[nei] = 1;
+        flood_fill(adj_t, color, scc, nei, id);
+    }
+}
+
+vector<int> get_scc(vector<vector<int>>& adj, vector<vector<int>>& adj_t) {
+    int n = len(adj);
+    vector<int> color(n);
+    vector<int> scc(n);
+    vector<int> T = get_topsort(adj);
+    reverse(all(T));
+    for (auto node : T) {
+        if (color[node]) {
+            continue;
+        }
+        color[node] = 1;
+        flood_fill(adj_t, color, scc, node, node);
+    }
+    return scc;
+}
+
+vector<int> get_scc_size(vector<int>& scc) {
+    int n = len(scc);
+    vector<int> scc_size(n);
+    for (auto id : scc) {
+        scc_size[id]++;
+    }
+    for (int node = 0; node < n; node++) {
+        scc_size[node] = scc_size[scc[node]];
+    }
+    return scc_size;
+}

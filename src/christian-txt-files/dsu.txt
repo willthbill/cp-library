@@ -1,0 +1,31 @@
+class DSU {
+public:
+    vector<int> id;
+    vector<int> sz;
+    DSU(int n) {
+        id.resize(n);
+        sz.resize(n, 1);
+        for (int i = 0; i < n; i++) {
+            id[i] = i;
+        }
+    }
+    int find(int x) {
+        while (x != id[x]) {
+            x = id[x];
+        }
+        return x;
+    }
+    void unite(int a, int b) {
+        a = find(a);
+        b = find(b);
+        if (sz[a] < sz[b]) {
+            swap(a, b);
+        }
+        sz[a] += sz[b];
+        id[b] = a;
+    }
+    int size(int x) {
+        x = find(x);
+        return sz[x];
+    }
+};

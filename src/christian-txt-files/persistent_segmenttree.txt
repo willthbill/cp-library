@@ -1,0 +1,131 @@
+class PersistentSegmentTree {
+public:
+    struct Value {
+        i64 value;
+        void operator=(const i64& x) { this->value = x; }
+        void operator+=(const i64& x) { this->value += x; }
+        explicit operator i64() const { return value; }
+    };
+    struct Node {
+        Value value; i64 lazy; bool assigned; i64 assign; int x; int y; Node* left; Node* right;
+    };
+    int n;
+    int N;
+    vector<Node*> trees;
+    vector<Value> A;
+    Value identity;
+    PersistentSegmentTree() {}
+    void init(int n, vector<i64> B) {
+        this->n = n;
+        N = nextpow2(n);
+        identity = oo;
+        A.resize(N, identity);
+        for (int i = 0; i < n; i++) {
+            A[i] = B[i];
+        }
+        trees.push_back(new Node{identity, 0, false, 0, 0, N-1, nullptr, nullptr});
+        build(trees[0]);
+    }
+    Value merge(const Value& a, const Value& b) {
+        if (a.value < b.value) {
+            return a;
+        }
+        return b;
+    }
+    void build(Node* node) {
+        assert(node != nullptr);
+        if (node->x != node->y) {
+            int d = node->x+(node->y-node->x)/2;
+            node->left = new Node{identity, 0, false, 0, node->x, d, nullptr, nullptr};
+            node->right = new Node{identity, 0, false, 0, d+1, node->y, nullptr, nullptr};
+            build(node->left);
+            build(node->right);
+            node->value = merge(node->left->value, node->right->value);
+        } else {
+            node->value = A[node->x];
+        }
+    }
+    void propagate(Node* node) {
+        /* 
+            if sum type queries then add *(node->y-node->x+1)
+            when assigning or adding to value
+        */
+        if (node->assigned) {
+            node->value = node->assign;
+            if (node->left != nullptr) {
+                node->right->assign = node->left->assign = node->assign;
+                node->right->lazy = node->left->lazy = 0;
+                node->right->assigned = node->left->assigned = true;
+            }
+            node->assign = 0;
+            node->assigned = false;
+        }
+        node->value += node->lazy;
+        if (node->left != nullptr) {
+            node->left->lazy += node->lazy;
+            node->right->lazy += node->lazy;
+        }
+        node->lazy = 0;
+    }
+    i64 qry(Node* node, int a, int b) {
+        assert(node != nullptr);
+        node->left = duplicate(node->left);
+        node->right = duplicate(node->right);
+        propagate(node);
+        if (node->y < a || b < node->x) return (i64)identity;
+        if (node->x >= a && b >= node->y) return (i64)node->value;
+        return min(qry(node->left, a, b), qry(node->right, a, b));
+    }
+    i64 qry(int version, int a, int b) {
+        return qry(trees[version], a, b);
+    }
+    Node* duplicate(Node* node) {
+        if (node != nullptr) {
+            return new Node{
+                node->value, node->lazy, node->assigned, node->assign, node->x, node->y, node->left, node->right
+            };
+        }
+        return nullptr;
+    }
+    void add(Node* node, int a, int b, i64 u) {
+        assert(node != nullptr);
+        node->left = duplicate(node->left);
+        node->right = duplicate(node->right);
+        propagate(node);
+        if (node->y < a || b < node->x) return;
+        if (node->x >= a && b >= node->y) {
+            node->lazy += u;
+        } else {
+            add(node->left, a, b, u);
+            add(node->right, a, b, u);
+            node->value = merge(node->left->value, node->right->value);
+        }
+        propagate(node);
+    }
+    void add(int version, int a, int b, i64 u) {
+        add(trees[version], a, b, u);
+    }
+    void upd(Node* node, int a, int b, i64 u) {
+        assert(node != nullptr);
+        node->left = duplicate(node->left);
+        node->right = duplicate(node->right);
+        propagate(node);
+        if (node->y < a || b < node->x) return;
+        if (node->x >= a && b >= node->y) {
+            node->assign = u;
+            node->assigned = true;
+            node->lazy = 0;
+        } else {
+            upd(node->left, a, b, u);
+            upd(node->right, a, b, u);
+            node->value = merge(node->left->value, node->right->value);
+        }
+        propagate(node);
+    }
+    void upd(int version, int a, int b, i64 u) {
+        upd(trees[version], a, b, u);
+    }
+    void append_copy(int version) {
+        trees.push_back(duplicate(trees[version]));
+    }
+};

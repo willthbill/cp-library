@@ -1,0 +1,114 @@
+class SegmentTree {
+public:
+    int N;
+    /* index is useful when it is important to know which index have the minimum/maximum value */
+    struct Node { i64 value; i64 index; i64 lazy; bool assigned; i64 assign; bool flipped; };
+    vector<Node> tree;
+    Node identity;
+    SegmentTree() {}
+    void init(int n) {
+        N = nextpow2(n);
+        identity = {0, oo, 0, false, 0, false};
+        tree.resize(2*N, identity);
+        for (int i = 0; i < n; i++) {
+            tree[i+N] = {0, i, 0, false, 0, false};
+        }
+        for (int i = 0; i < n; i++) {
+            upd(i, i, -1);
+        }
+    }
+    Node merge(const Node& a, const Node& b) {
+        return {a.value+b.value, a.index == oo ? b.index : a.index, 0, false, 0, false};
+    }
+    void propagate(int k, int x, int y) {
+        /* 
+            if min or max type queries then remove *(y-x+1)
+            when assigning or adding to value
+        */
+        if (tree[k].assigned) {
+            tree[k].value = tree[k].assign*(y-x+1);
+            if (k < N) {
+                tree[k*2+1].assign = tree[k*2].assign = tree[k].assign;
+                tree[k*2+1].lazy = tree[k*2].lazy = 0;
+                tree[k*2+1].assigned = tree[k*2].assigned = true;
+                tree[k*2+1].flipped = tree[k*2].flipped = false;
+            }
+            tree[k].assign = 0;
+            tree[k].assigned = false;
+        }
+        if (tree[k].flipped) {
+            tree[k].value *= -1;
+            if (k < N) {
+                if (tree[k*2+1].assigned) {
+                    tree[k*2+1].assign *= -1;
+                } else {
+                    tree[k*2+1].flipped = !tree[k*2+1].flipped;
+                }
+                if (tree[k*2].assigned) {
+                    tree[k*2].assign *= -1;
+                } else {
+                    tree[k*2].flipped = !tree[k*2].flipped;
+                }
+            }
+            tree[k].flipped = false;
+        }
+        tree[k].value += tree[k].lazy*(y-x+1);
+        if (k < N) {
+            tree[k*2].lazy += tree[k].lazy;
+            tree[k*2+1].lazy += tree[k].lazy;
+        }
+        tree[k].lazy = 0;
+    }
+    Node qry(int a, int b, int k, int x, int y) {
+        propagate(k, x, y);
+        if (y < a || b < x) return identity;
+        if (x >= a && b >= y) return tree[k];
+        int d = x+(y-x)/2;
+        return merge(qry(a, b, 2*k, x, d), qry(a, b, 2*k+1, d+1, y));
+    }
+    void add(int a, int b, int k, int x, int y, i64 u) {
+        propagate(k, x, y);
+        if (y < a || b < x) return;
+        if (x >= a && b >= y) {
+            tree[k].lazy += u;
+        } else {
+            int d = x+(y-x)/2;
+            add(a, b, 2*k, x, d, u);
+            add(a, b, 2*k+1, d+1, y, u);
+            tree[k] = merge(tree[2*k], tree[2*k+1]);
+        }
+        propagate(k, x, y);
+    }
+    void upd(int a, int b, int k, int x, int y, i64 u) {
+        propagate(k, x, y);
+        if (y < a || b < x) return;
+        if (x >= a && b >= y) {
+            tree[k].assign = u;
+            tree[k].assigned = true;
+            tree[k].lazy = 0;
+        } else {
+            int d = x+(y-x)/2;
+            upd(a, b, 2*k, x, d, u);
+            upd(a, b, 2*k+1, d+1, y, u);
+            tree[k] = merge(tree[2*k], tree[2*k+1]);
+        }
+        propagate(k, x, y);
+    }
+    void flip(int a, int b, int k, int x, int y) {
+        propagate(k, x, y);
+        if (y < a || b < x) return;
+        if (x >= a && b >= y) {
+            tree[k].flipped = true;
+        } else {
+            int d = x+(y-x)/2;
+            flip(a, b, 2*k, x, d);
+            flip(a, b, 2*k+1, d+1, y);
+            tree[k] = merge(tree[2*k], tree[2*k+1]);
+        }
+        propagate(k, x, y);
+    }
+    Node qry(int a, int b) { return qry(a, b, 1, 0, N-1); }
+    void add(int a, int b, i64 u) { add(a, b, 1, 0, N-1, u); }
+    void upd(int a, int b, i64 u) { upd(a, b, 1, 0, N-1, u); }
+    void flip(int a, int b) { flip(a, b, 1, 0, N-1); }
+};

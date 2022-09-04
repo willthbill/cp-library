@@ -1,0 +1,57 @@
+int n, q; cin >> n >> q;
+int l = 0, r = 0, k = sqrt(n);
+vector<i64> A(n);
+vector<tuple<int, int, int, i64>> B(q);
+vector<i64> ans(q);
+set<pair<i64, int>> S;
+function<void(int, int)> walk = [&] (int a, int b) {
+    if (l < a) {
+        while (r < b) { r++, S.insert({A[r], r}); }
+        while (r > b) { S.erase({A[r], r}), r--; }
+        while (l < a) { S.erase({A[l], l}), l++; }
+        while (l > a) { l--, S.insert({A[l], l}); }
+    } else {
+        while (l < a) { S.erase({A[l], l}), l++; }
+        while (l > a) { l--, S.insert({A[l], l}); }
+        while (r < b) { r++, S.insert({A[r], r}); }
+        while (r > b) { S.erase({A[r], r}), r--; }
+    }
+};
+for (int i = 0; i < n; i++) {
+    cin >> A[i];
+}
+for (int i = 0; i < q; i++) {
+    i64 a, b, x; cin >> a >> b >> x; a--; b--;
+    B[i] = make_tuple(a, b, i, x);
+}
+sort(all(B), [&] (const tuple<int, int, int, i64>& a, const tuple<int, int, int, i64>& b) {
+    if (get<0>(a) == get<0>(b) && get<1>(a) == get<1>(b)) {
+        return get<2>(a) == get<2>(b) ? get<3>(a) < get<3>(b) : get<2>(a) < get<2>(b);
+    }
+    if (get<0>(a)/k == get<0>(b)/k) {
+        if ((get<0>(a)/k)%2 == 0) {
+            return get<1>(a) < get<1>(b);
+        }
+        return get<1>(a) >= get<1>(b);
+    }
+    return get<0>(a) < get<0>(b);
+});
+S.insert({A[0], 0});
+for (int i = 0; i < q; i++) {
+    i64 a, b, idx, x;
+    tie(a, b, idx, x) = B[i];
+    walk(a, b);
+    auto it = S.upper_bound({x, n});
+    if (it != S.end()) {
+        ans[idx] = (*it).second+1;
+        continue;
+    }
+    if (len(S) && (*S.begin()).first != x) {
+        ans[idx] = (*S.begin()).second+1;
+        continue;
+    }
+    ans[idx] = -1;
+}
+for (auto x : ans) {
+    print(x);
+}

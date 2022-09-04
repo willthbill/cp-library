@@ -1,0 +1,92 @@
+class Tree {
+public:
+    int n;
+    int log;
+    int root;
+    int time;
+    vector<vector<pair<i64, int>>> adj;
+    vector<vector<int>> up;
+    vector<vector<i64>> mx;
+    vector<i64> value;
+    vector<pair<int, int>> T;
+    Tree(int n, int root = 0) {
+        this->n = n;
+        adj.resize(n);
+        this->log = log2(n);
+        this->root = root;
+        time = 0;
+        up.resize(n, vector<int>(log+1, root));
+        mx.resize(n, vector<i64>(log+1, root));
+        T.resize(n);
+    }
+    void add_edge(int u, int v, i64 w) {
+        adj[u].push_back({w, v});
+        adj[v].push_back({w, u});
+    }
+    void compute(vector<i64>& value) {
+        this->value = value;
+        dfs(root, -1);
+    }
+    void dfs(int node, int parent) {
+        T[node].first = time++;
+        for (auto edge : adj[node]) {
+            i64 weight, nei;
+            tie(weight, nei) = edge;
+            if (nei == parent) {
+                continue;
+            }
+            up[nei][0] = node;
+            mx[nei][0] = value[nei];
+            for (int i = 1; i <= log; i++) {
+                up[nei][i] = up[up[nei][i-1]][i-1];
+                mx[nei][i] = max(mx[nei][i-1], mx[up[nei][i-1]][i-1]);
+            }
+            dfs(nei, node);
+        }
+        T[node].second = time++;
+    }
+    bool ancestor(int u, int v) {
+        /* is u ancestor of v */
+        return T[u].first <= T[v].first && T[u].second >= T[v].second;
+    };
+    int lca(int u, int v) {
+        if (ancestor(u, v)) {
+            return u;
+        }
+        if (ancestor(v, u)) {
+            return v;
+        }
+        for (int i = log; i >= 0; i--) {
+            if (ancestor(up[u][i], v) == false) {
+                u = up[u][i];
+            }
+        }
+        return up[u][0];
+    }
+    i64 qry(int u, int v) {
+        i64 x = -oo;
+        int uv = u;
+        for (int i = log; i >= 0; i--) {
+            if (ancestor(up[uv][i], v) == false) {
+                x = max(x, mx[uv][i]);
+                uv = up[uv][i];
+            }
+        }
+        if (ancestor(uv, v) == false) {
+            x = max(x, mx[uv][0]);
+        }
+        uv = v;
+        for (int i = log; i >= 0; i--) {
+            if (ancestor(up[uv][i], u) == false) {
+                x = max(x, mx[uv][i]);
+                uv = up[uv][i];
+            }
+        }
+        if (ancestor(uv, u) == false) {
+            x = max(x, mx[uv][0]);
+            uv = up[uv][0];
+        }
+        x = max(x, value[uv]);
+        return x;
+    }
+};

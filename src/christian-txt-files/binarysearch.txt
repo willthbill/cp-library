@@ -1,0 +1,49 @@
+i64 lowerbound(i64 l, i64 r, function<bool(i64)> f) {
+    /*
+        finding minimum x such that f(x) == true
+    */
+    r++;
+    while (l < r) {
+        i64 m = l+(r-l)/2;
+        if (f(m)) r = m;
+        else l = m+1;
+    }
+    return l;
+}
+
+i64 upperbound(i64 l, i64 r, function<bool(i64)> f) {
+    /*
+        finding maximum x such that f(x) == true
+    */
+    l--;
+    while (l < r) {
+        i64 m = l+(r-l+1)/2;
+        if (f(m)) l = m;
+        else r = m-1;
+    }
+    return l;
+}
+
+d64 lowerbound(d64 l, d64 r, d64 epsilon, function<bool(d64)> f) {
+    /*
+        finding minimum x such that f(x) == true
+    */
+    while(r-l > epsilon*max<d64>(1, l)) {
+        d64 m = l+(r-l)/2;
+        if (f(m)) r = m;
+        else l = m;
+    }
+    return l;
+}
+
+d64 upperbound(d64 l, d64 r, d64 epsilon, function<bool(d64)> f) {
+    /*
+        finding maximum x such that f(x) == true
+    */
+    while(r-l > epsilon*max<d64>(1, l)) {
+        d64 m = l+(r-l)/2;
+        if (f(m)) l = m;
+        else r = m;
+    }
+    return l;
+}

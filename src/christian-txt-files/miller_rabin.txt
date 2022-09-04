@@ -1,0 +1,74 @@
+/*
+    https://cp-algorithms.com/algebra/primality_tests.html#deterministic-version
+    https://codeforces.com/blog/entry/96759
+*/
+class MillerRabin {
+public:
+    MillerRabin () {}
+    u64 sum(const u64 x, const u64 y, const u64 m) {
+        u64 ans = x+y;
+        if (ans < x || ans >= m) {
+            ans -= m;
+        }
+        return ans;
+    }
+    u64 prod_binary(const u64 x, const u64 y, const u64 m) {
+        if (y <= 1) {
+            return y ? x : 0;
+        }
+        u64 ans = prod_binary(x, y>>1, m);
+        ans = sum(ans, ans, m);
+        if (y&1) {
+            ans = sum(ans, x, m);
+        }
+        return ans;
+    }
+    u64 fast_exp(u64 a, u64 b, u64 m) {
+        u64 ans = 1;
+        while (b >= 1) {
+            if (b%2) {
+                ans = prod_binary(ans, a, m);
+            }
+            b /= 2;
+            a = prod_binary(a, a, m);
+        }
+        return ans;
+    }
+    bool check_composite(u64 n, u64 a, u64 d, int s) {
+        u64 x = fast_exp(a, d, n);
+        if (x == 1 || x == n-1)
+            return false;
+        for (int r = 1; r < s; r++) {
+            x = prod_binary(x, x, n);
+            if (x == n-1) {
+                return false;
+            }
+        }
+        return true;
+    };
+    bool prime(u64 n) {
+        if (n < 2) {
+            return false;
+        }
+        for (u64 x : {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}) {
+            if (n%x == 0) {
+                return n == x;
+            }
+        }
+        int r = 0;
+        u64 d = n-1;
+        while ((d&1) == 0) {
+            d >>= 1;
+            r++;
+        }
+        for (int a : {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}) {
+            if (n == a) {
+                return true;
+            }
+            if (check_composite(n, a, d, r)) {
+                return false;
+            }
+        }
+        return true;
+    }
+};

@@ -1,0 +1,77 @@
+/*
+    https://cp-algorithms.com/graph/min_cost_flow.html#implementation
+*/
+const int INF = 1e9; // <- important to use this for infinity
+class MCMF {
+public:
+    vector<vector<int>> adj;
+    vector<vector<int>> cost;
+    vector<vector<int>> capacity;
+    MCMF() {}
+    void shortest_paths(int n, int src, vector<int>& dist, vector<int>& parent) {
+        dist.assign(n, INF);
+        dist[src] = 0;
+        vector<bool> inqueue(n, false);
+        queue<int> q;
+        q.push(src);
+        parent.assign(n, -1);
+        while (len(q)) {
+            int node = q.front();
+            q.pop();
+            inqueue[node] = false;
+            for (int nei : adj[node]) {
+                if (capacity[node][nei] > 0 && dist[nei] > dist[node]+cost[node][nei]) {
+                    dist[nei] = dist[node]+cost[node][nei];
+                    parent[nei] = node;
+                    if (!inqueue[nei]) {
+                        inqueue[nei] = true;
+                        q.push(nei);
+                    }
+                }
+            }
+        }
+    }
+    int min_cost_flow(vector<vector<tuple<int, int, int>>>& graph, int k, int src, int sink) {
+        /* tuple<int, int, int> in graph represents {nei, capacity, cost} */
+        int n = len(graph);
+        adj.assign(n, vector<int>());
+        cost.assign(n, vector<int>(n));
+        capacity.assign(n, vector<int>(n));
+        for (int u = 0; u < n; u++) {
+            for (auto [v, c, w] : graph[u]) {
+                adj[u].push_back(v);
+                adj[v].push_back(u);
+                cost[u][v] = w;
+                cost[v][u] = -w;
+                capacity[u][v] = c;
+            }
+        }
+        int flow = 0;
+        int mincost = 0;
+        vector<int> dist, parent;
+        while (flow < k) {
+            shortest_paths(n, src, dist, parent);
+            if (dist[sink] == INF) {
+                break;
+            }
+            int f = k-flow;
+            int node = sink;
+            while (node != src) {
+                f = min(f, capacity[parent[node]][node]);
+                node = parent[node];
+            }
+            flow += f;
+            mincost += f*dist[sink];
+            node = sink;
+            while (node != src) {
+                capacity[parent[node]][node] -= f;
+                capacity[node][parent[node]] += f;
+                node = parent[node];
+            }
+        }
+        if (flow < k) {
+            /* k-flow could not be reached */
+        }
+        return mincost;
+    }
+};

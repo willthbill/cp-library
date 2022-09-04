@@ -1,0 +1,33 @@
+/*
+    https://cp-algorithms.com/graph/bellman_ford.html#shortest-path-faster-algorithm-spfa
+*/
+bool spfa(vector<vector<pair<i64, i64>>>& adj, int src, vector<i64>& dist) {
+    int n = len(adj);
+    dist.assign(n, oo);
+    vector<int> seen(n);
+    vector<bool> inqueue(n, false);
+    queue<int> q;
+    dist[src] = 0;
+    q.push(src);
+    inqueue[src] = true;
+    while (len(q)) {
+        int node = q.front();
+        q.pop();
+        inqueue[node] = false;
+        for (auto [weight, nei] : adj[node]) {
+            if (dist[node] != oo && dist[node]+weight < dist[nei]) {
+                dist[nei] = dist[node]+weight;
+                if (!inqueue[nei]) {
+                    inqueue[nei] = true;
+                    q.push(nei);
+                    seen[nei]++;
+                    if (seen[nei] > n) {
+                        /* negative cycle */
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}

@@ -1,0 +1,99 @@
+class BridgeTree {
+    vector<vector<int>> directed_adj;
+    vector<vector<int>> directed_adj_t;
+    map<pair<int, int>, int> M;
+    vector<int> nodes;
+    void dfs(int node) {
+        for (auto edge : adj[node]) {
+            int nei = edge.second;
+            if (M.count({min(node, nei), max(node, nei)}) == 0) {
+                M[{min(node, nei), max(node, nei)}] = 1;
+                directed_adj[node].push_back(nei);
+                directed_adj_t[nei].push_back(node);
+            }
+            if (color[nei]) {
+                continue;
+            }
+            color[nei] = 1;
+            dfs(nei);
+        }
+    }
+    void topsort(int node) {
+        for (auto nei : directed_adj[node]) {
+            if (color[nei]) {
+                continue;
+            }
+            color[nei] = 1;
+            topsort(nei);
+        }
+        nodes.push_back(node);
+    }
+    void flood_fill(int node) {
+        for (auto nei : directed_adj_t[node]) {
+            if (color[nei] != -1) {
+                continue;
+            }
+            color[nei] = id;
+            flood_fill(nei);
+        }
+    }
+public:
+    int n;
+    int root;
+    int id;
+    vector<vector<pair<i64, int>>> adj;
+    vector<vector<pair<int, int>>> tree;
+    vector<int> color;
+    vector<int> value;
+    BridgeTree() {}
+    BridgeTree(int n, int root = 0) {
+        this->n = n;
+        this->root = root;
+        adj.resize(n, vector<pair<i64, int>>());
+        directed_adj.resize(n, vector<int>());
+        directed_adj_t.resize(n, vector<int>());
+        color.resize(n);
+        id = 0;
+    }
+    void add_edge (int u, int v, i64 w = 0) {
+        adj[u].push_back({w, v});
+        adj[v].push_back({w, u});
+    }
+    void compute() {
+        color[root] = 1;
+        dfs(root);
+        fill(all(color), 0);
+        for (int node = 0; node < n; node++) {
+            if (color[node]) {
+                continue;
+            }
+            color[node] = 1;
+            topsort(node);
+        }
+        reverse(all(nodes));
+        fill(all(color), -1);
+        for (auto node : nodes) {
+            if (color[node] != -1) {
+                continue;
+            }
+            color[node] = id;
+            flood_fill(node);
+            id++;
+        }
+        tree.resize(id);
+        value.resize(id);
+        for (int node = 0; node < n; node++) {
+            for (auto edge : adj[node]) {
+                int weight, nei;
+                tie(weight, nei) = edge;
+                int u = color[node], v = color[nei];
+                if (u != v) {
+                    tree[u].push_back({weight, v});
+                } else {
+                    /* value[u] = value of node u */
+                    value[u] = max(value[u], weight);
+                }
+            }
+        }
+    }
+};

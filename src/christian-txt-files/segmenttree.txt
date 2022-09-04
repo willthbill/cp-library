@@ -1,0 +1,82 @@
+class SegmentTree {
+public:
+    int N;
+    struct Node { i64 value; i64 index; i64 lazy; bool assigned; i64 assign; };
+    vector<Node> tree;
+    Node identity;
+    SegmentTree() {}
+    void init(int n) {
+        N = nextpow2(n);
+        identity = {oo, 0, 0, false, 0};
+        tree.resize(2*N, identity);
+        for (int i = 0; i < n; i++) {
+            tree[i+N] = {oo, i, 0, false, 0};
+        }
+    }
+    Node merge(const Node& a, const Node& b) {
+        if (a.value < b.value) {
+            return a;
+        }
+        return b;
+    }
+    void propagate(int k, int x, int y) {
+        /* 
+            if sum type queries then add *(y-x+1)
+            when assigning or adding to value
+        */
+        if (tree[k].assigned) {
+            tree[k].value = tree[k].assign;
+            if (k < N) {
+                tree[k*2+1].assign = tree[k*2].assign = tree[k].assign;
+                tree[k*2+1].lazy = tree[k*2].lazy = 0;
+                tree[k*2+1].assigned = tree[k*2].assigned = true;
+            }
+            tree[k].assign = 0;
+            tree[k].assigned = false;
+        }
+        tree[k].value += tree[k].lazy;
+        if (k < N) {
+            tree[k*2].lazy += tree[k].lazy;
+            tree[k*2+1].lazy += tree[k].lazy;
+        }
+        tree[k].lazy = 0;
+    }
+    Node qry(int a, int b, int k, int x, int y) {
+        propagate(k, x, y);
+        if (y < a || b < x) return identity;
+        if (x >= a && b >= y) return tree[k];
+        int d = x+(y-x)/2;
+        return merge(qry(a, b, 2*k, x, d), qry(a, b, 2*k+1, d+1, y));
+    }
+    void add(int a, int b, int k, int x, int y, i64 u) {
+        propagate(k, x, y);
+        if (y < a || b < x) return;
+        if (x >= a && b >= y) {
+            tree[k].lazy += u;
+        } else {
+            int d = x+(y-x)/2;
+            add(a, b, 2*k, x, d, u);
+            add(a, b, 2*k+1, d+1, y, u);
+            tree[k] = merge(tree[2*k], tree[2*k+1]);
+        }
+        propagate(k, x, y);
+    }
+    void upd(int a, int b, int k, int x, int y, i64 u) {
+        propagate(k, x, y);
+        if (y < a || b < x) return;
+        if (x >= a && b >= y) {
+            tree[k].assign = u;
+            tree[k].assigned = true;
+            tree[k].lazy = 0;
+        } else {
+            int d = x+(y-x)/2;
+            upd(a, b, 2*k, x, d, u);
+            upd(a, b, 2*k+1, d+1, y, u);
+            tree[k] = merge(tree[2*k], tree[2*k+1]);
+        }
+        propagate(k, x, y);
+    }
+    Node qry(int a, int b) { return qry(a, b, 1, 0, N-1); }
+    void add(int a, int b, i64 u) { add(a, b, 1, 0, N-1, u); }
+    void upd(int a, int b, i64 u) { upd(a, b, 1, 0, N-1, u); }
+};

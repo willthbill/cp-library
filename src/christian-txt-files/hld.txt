@@ -1,0 +1,171 @@
+class SegmentTree {
+public:
+    int N;
+    struct Node { i64 value; i64 index; i64 lazy; bool assigned; i64 assign; };
+    vector<Node> tree;
+    Node identity;
+    SegmentTree() {}
+    void init(int n) {
+        N = nextpow2(n);
+        identity = {-oo, 0, 0, false, 0};
+        tree.resize(2*N, identity);
+        for (int i = 0; i < n; i++) {
+            tree[i+N] = {-oo, i, 0, false, 0};
+        }
+    }
+    Node merge(const Node& a, const Node& b) {
+        if (a.value > b.value) {
+            return a;
+        }
+        return b;
+    }
+    void propagate(int k, int x, int y) {
+        /* 
+            if sum type queries then add *(y-x+1)
+            when assigning or adding to value
+        */
+        if (tree[k].assigned) {
+            tree[k].value = tree[k].assign;
+            if (k < N) {
+                tree[k*2+1].assign = tree[k*2].assign = tree[k].assign;
+                tree[k*2+1].lazy = tree[k*2].lazy = 0;
+                tree[k*2+1].assigned = tree[k*2].assigned = true;
+            }
+            tree[k].assign = 0;
+            tree[k].assigned = false;
+        }
+        tree[k].value += tree[k].lazy;
+        if (k < N) {
+            tree[k*2].lazy += tree[k].lazy;
+            tree[k*2+1].lazy += tree[k].lazy;
+        }
+        tree[k].lazy = 0;
+    }
+    Node qry(int a, int b, int k, int x, int y) {
+        propagate(k, x, y);
+        if (y < a || b < x) return identity;
+        if (x >= a && b >= y) return tree[k];
+        int d = x+(y-x)/2;
+        return merge(qry(a, b, 2*k, x, d), qry(a, b, 2*k+1, d+1, y));
+    }
+    void add(int a, int b, int k, int x, int y, i64 u) {
+        propagate(k, x, y);
+        if (y < a || b < x) return;
+        if (x >= a && b >= y) {
+            tree[k].lazy += u;
+        } else {
+            int d = x+(y-x)/2;
+            add(a, b, 2*k, x, d, u);
+            add(a, b, 2*k+1, d+1, y, u);
+            tree[k] = merge(tree[2*k], tree[2*k+1]);
+        }
+        propagate(k, x, y);
+    }
+    void upd(int a, int b, int k, int x, int y, i64 u) {
+        propagate(k, x, y);
+        if (y < a || b < x) return;
+        if (x >= a && b >= y) {
+            tree[k].assign = u;
+            tree[k].assigned = true;
+            tree[k].lazy = 0;
+        } else {
+            int d = x+(y-x)/2;
+            upd(a, b, 2*k, x, d, u);
+            upd(a, b, 2*k+1, d+1, y, u);
+            tree[k] = merge(tree[2*k], tree[2*k+1]);
+        }
+        propagate(k, x, y);
+    }
+    i64 qry(int a, int b) { return qry(a, b, 1, 0, N-1).value; }
+    void add(int a, int b, i64 u) { add(a, b, 1, 0, N-1, u); }
+    void upd(int a, int b, i64 u) { upd(a, b, 1, 0, N-1, u); }
+};
+
+class HLD {
+    /* link: https://cp-algorithms.com/graph/hld.html#implementation */
+public:
+    int n;
+    int cur_pos;
+    vector<vector<pair<i64, int>>> adj;
+    vector<int> parent;
+    vector<int> depth;
+    vector<int> heavy;
+    vector<int> head;
+    vector<int> pos;
+    SegmentTree tree;
+    HLD(int n) {
+        this->n = n;
+        adj.resize(n);
+        parent.resize(n);
+        depth.resize(n);
+        heavy.resize(n, -1);
+        head.resize(n);
+        pos.resize(n);
+        cur_pos = 0;
+    }
+    void add_edge(int u, int v, i64 w) {
+        adj[u].push_back({w, v});
+        adj[v].push_back({w, u});
+    }
+    void compute(vector<i64>& A) {
+        /* A[node] = value of node */
+        dfs(0);
+        decompose(0, 0);
+        vector<i64> B(n);
+        for (int i = 0; i < n; i++) {
+            B[pos[i]] = A[i];
+        }
+        tree.init(n);
+        for (int i = 0; i < n; i++) {
+            tree.upd(i, i, B[i]);
+        }
+    }
+    int dfs(int v) {
+        int size = 1;
+        int max_c_size = 0;
+        for (auto edge : adj[v]) {
+            int c = edge.second;
+            if (c != parent[v]) {
+                parent[c] = v;
+                depth[c] = depth[v]+1;
+                int c_size = dfs(c);
+                size += c_size;
+                if (c_size > max_c_size) {
+                    max_c_size = c_size;
+                    heavy[v] = c;
+                }
+            }
+        }
+        return size;
+    }
+
+    void decompose(int v, int h) {
+        head[v] = h;
+        pos[v] = cur_pos++;
+        if (heavy[v] != -1) {
+            decompose(heavy[v], h);
+        }
+        for (auto edge : adj[v]) {
+            int c = edge.second;
+            if (c != parent[v] && c != heavy[v]) {
+                decompose(c, c);
+            }
+        }
+    }
+    int qry(int a, int b) {
+        int res = 0;
+        for (; head[a] != head[b]; b = parent[head[b]]) {
+            if (depth[head[a]] > depth[head[b]]) {
+                swap(a, b);
+            }
+            int cur_heavy_path_max = tree.qry(pos[head[b]], pos[b]);
+            res = max(res, cur_heavy_path_max);
+        }
+        if (depth[a] > depth[b]) {
+            swap(a, b);
+        }
+        int last_heavy_path_max = tree.qry(pos[a], pos[b]);
+        res = max(res, last_heavy_path_max);
+        return res;
+    }
+};

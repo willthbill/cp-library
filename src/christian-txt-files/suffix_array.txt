@@ -1,0 +1,54 @@
+function<vector<int>(string&)> sort_shifts = [&] (string& s) {
+        int n = (int)s.size(), m = 256, k = 1;
+        vector<int> p(n), c(n), pn(n), cn(n), cnt(max(n, m), 0);
+        for (int i = 0; i < n; i++) cnt[s[i]]++;
+        for (int i = 1; i < m; i++) cnt[i] += cnt[i-1];
+        for (int i = 0; i < n; i++) p[--cnt[s[i]]] = i;
+        cnt[p[0]] = 0;
+        for (int i = 1; i < n; i++) {
+            if (s[p[i]] != s[p[i-1]]) k++;
+            c[p[i]] = k-1;
+        }
+        for (int j = 0; (1 << j) < n; j++) {
+            for (int i = 0; i < n; i++) {
+                pn[i] = p[i]-(1 << j);
+                if (pn[i] < 0) pn[i] += n;
+            }
+            fill(cnt.begin(), cnt.begin()+k, 0);
+            for (int i = 0; i < n; i++) cnt[c[pn[i]]]++;
+            for (int i = 1; i < k; i++) cnt[i] += cnt[i-1];
+            for (int i = n-1; i >= 0; i--) p[--cnt[c[pn[i]]]] = pn[i];
+            cnt[p[0]] = 0;
+            k = 1;
+            for (int i = 1; i < n; i++) {
+                if (c[p[i]] != c[p[i-1]] || c[(p[i]+(1 << j))%n] != c[(p[i-1]+(1 << j))%n]) k++;
+                cn[p[i]] = k-1;
+            }
+            swap(c, cn);
+        }
+        return p;
+    };
+
+    function<vector<int>(string)> build = [&] (string s) {
+        s += "$";
+        vector<int> suffix = sort_shifts(s);
+        suffix.erase(suffix.begin());
+        return suffix;
+    };
+
+    function<vector<int>(string&, vector<int>&)> kasai = [&] (string& s, vector<int>& suffix) {
+        int n = (int)s.size(), k = 0;
+        vector<int> rank(n, 0), lcp(n-1, 0);
+        for (int i = 0; i < n; i++) rank[suffix[i]] = i;
+        for (int i = 0; i < n; i++) {
+            if (rank[i] == n-1) {
+                k = 0;
+                continue;
+            }
+            int j = suffix[rank[i]+1];
+            while (i+k < n && j+k < n && s[i+k] == s[j+k]) k++;
+            lcp[rank[i]] = k;
+            if (k) k--;
+        }
+        return lcp;
+    };

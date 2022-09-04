@@ -1,0 +1,25 @@
+int N = nextpow2(n);
+vector<i64> sum(2*N, 0);
+vector<i64> prefix(2*N, 0);
+vector<i64> suffix(2*N, 0);
+vector<i64> tree(2*N, 0);
+function<i64(int, int, int, int, int)> qry = [&] (int a, int b, int k, int x, int y) -> i64 {
+    if (y < a || b < x) return 0;
+    if (x >= a && b >= y) return tree[k];
+    int d = x+(y-x)/2;
+    return max(qry(a, b, k*2, x, d), qry(a, b, k*2+1, d+1, y));
+};
+function<void(int, i64)> upd = [&] (int k, i64 x) {
+    k += N;
+    prefix[k] = suffix[k] = max<i64>(0, tree[k]+x);
+    tree[k] += x;
+    sum[k] += x;
+    for (k /= 2; k >= 1; k /= 2) {
+        tree[k] = max(tree[k*2], tree[k*2+1]);
+        tree[k] = max(tree[k], suffix[k*2]+prefix[k*2+1]);
+        prefix[k] = max(prefix[k*2], sum[k*2]+prefix[k*2+1]);
+        suffix[k] = max(suffix[k*2+1], suffix[k*2]+sum[k*2+1]);
+        sum[k] = sum[k*2]+sum[k*2+1];
+    }
+};
+for (int i = 0; i < n; i++) upd(i, 0);

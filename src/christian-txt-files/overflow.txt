@@ -1,0 +1,12 @@
+/*
+    https://stackoverflow.com/questions/199333/how-do-i-detect-unsigned-integer-overflow
+*/
+bool add_overflow(i64 a, i64 x) {
+    return (x > 0 && a > oo-x) || (x < 0 && a < -oo-x);
+}
+bool sub_overflow(i64 a, i64 x) {
+    return (x < 0 && a > oo+x) || (x > 0 && a < -oo+x);
+}
+bool mult_overflow(i64 a, i64 x) {
+    return (a == -1 && x == -oo) || (x == -1 && a == -oo) || (x != 0 && a > oo/x) || (x != 0 && a < -oo/x);
+}

@@ -1,0 +1,16 @@
+struct MatrixSum {
+	int n, m;
+	vector<vector<i64>> A;
+	MatrixSum(vector<vector<i64>>& B) {
+		n = len(B), m = len(B[0]);
+		A = vector<vector<i64>>(n+1, vector<i64>(m+1, 0));
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				A[i+1][j+1] = A[i][j+1]+A[i+1][j]-A[i][j]+B[i][j];
+            }
+        }
+	}
+	i64 sum(int x1, int y1, int x2, int y2) {
+		return A[y2+1][x2+1]-A[y1][x2+1]-A[y2+1][x1]+A[y1][x1];
+	}
+};

@@ -1,0 +1,47 @@
+/*
+    pie for a pie trick
+    R is set of removed edges from complete graph
+    algorithm returns connected component array
+*/
+vector<int> get_cc(set<pair<int, int>> R, int n) {
+    set<int> S;
+    for (int i = 0; i < n; i++) {
+        S.insert(i);
+    }
+    vector<int> cc(n);
+    for (int node = 0; node < n; node++) {
+        if (S.count(node) == 0) {
+            continue;
+        }
+        S.erase(node);
+        queue<int> q;
+        q.push(node);
+        while (len(q)) {
+            int u = q.front();
+            q.pop();
+            cc[u] = node;
+            for (auto it = S.begin(); it != S.end();) {
+                int v = *it;
+                if (R.count({min(u, v), max(u, v)})) {
+                    it++;
+                    continue;
+                }
+                q.push(v);
+                it = S.erase(it);
+            }
+        }
+    }
+    return cc;
+}
+
+vector<int> get_cc_size(vector<int> cc) {
+    int n = len(cc);
+    vector<int> cc_size(n);
+    for (int i = 0; i < n; i++) {
+        cc_size[cc[i]]++;
+    }
+    for (int i = 0; i < n; i++) {
+        cc_size[i] = cc_size[cc[i]];
+    }
+    return cc_size;
+}

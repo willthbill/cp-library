@@ -1,0 +1,22 @@
+template<class T>
+class SparseTable {
+    vector<vector<T>> sparse;
+public:
+    SparseTable(int n, vector<T> A) {
+        int k = 32-__builtin_clz(n);
+        sparse.resize(n, vector<T>(k));
+        for (int i = 0; i < n; i++) {
+            sparse[i][0] = A[i];
+        }
+        for (int i = 1; i <= k; i++) {
+            for (int j = 0; j+(1<<i) <= n; j++) {
+                sparse[j][i] = min(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
+            }
+        }
+    }
+    T qry(int l, int r) {
+        int x = 31-__builtin_clz(r-l+1);
+        int y = 1<<x;
+        return min(sparse[l][x], sparse[r-y+1][x]);
+    }
+};

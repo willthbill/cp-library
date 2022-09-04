@@ -1,0 +1,67 @@
+class LCA {
+    int n;
+    vector<vector<tuple<int, int>>> sparse;
+    vector<vector<tuple<int, i64>>> adj;
+    vector<i64> weighted_depth;
+    vector<i64> depth;
+    vector<int> left;
+    vector<int> right;
+    vector<int> euler;
+    int root;
+    void compute_lca(int node, int parent, int d, int wd) {
+        euler.push_back(node);
+        weighted_depth.push_back(wd);
+        depth.push_back(d);
+        left[node] = len(euler)-1;
+        for (auto e : adj[node]) {
+            int nei;
+            i64 w;
+            tie(nei, w) = e;
+            if (nei == parent) continue;
+            compute_lca(nei, node, d+1, wd+w);
+            euler.push_back(node);
+            weighted_depth.push_back(wd);
+            depth.push_back(d);
+        }
+        right[node] = len(euler)-1;
+    }
+public:
+    LCA(int n, int root = 0) {
+        this->n = n;
+        this->root = root;
+        adj.resize(n);
+    }
+    void add_edge(int u, int v) {
+        adj[u].push_back({v, 1});
+        adj[v].push_back({u, 1});
+    }
+    void add_edge(int u, int v, i64 w) {
+        adj[u].push_back({v, w});
+        adj[v].push_back({u, w});
+    }
+    void compute_lca() {
+        int N = 2*n-1;
+        int K = 32-__builtin_clz(N);
+        sparse.resize(N, vector<tuple<int, int>>(K));
+        left.resize(n);
+        right.resize(n);
+        compute_lca(root, -1, 0, 0);
+        for (int i = 0; i < N; i++) sparse[i][0] = {depth[i], euler[i]};
+        for (int i = 1; i <= K; i++) {
+            for (int j = 0; j+(1 << i) <= N; j++) {
+                sparse[j][i] = min(sparse[j][i-1], sparse[j+(1 << (i-1))][i-1]);
+            }
+        }
+    }
+    int lca(int a, int b) {
+        a = left[a];
+        b = right[b];
+        if (b < a) swap(a, b);
+        int i = 31-__builtin_clz(b-a+1);
+        int j = 1 << i;
+        return get<1>(min(sparse[a][i], sparse[b-j+1][i]));
+    }
+    int dist(int u, int v) {
+        return weighted_depth[left[u]]+weighted_depth[left[v]]-2*weighted_depth[left[lca(u, v)]];
+    }
+};
