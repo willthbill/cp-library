@@ -42,9 +42,9 @@ public:
     int root;
     int id;
     vector<vector<pair<i64, int>>> adj;
-    vector<vector<pair<int, int>>> tree;
+    vector<vector<pair<i64, int>>> tree;
     vector<int> color;
-    vector<int> value;
+    vector<i64> value;
     BridgeTree() {}
     BridgeTree(int n, int root = 0) {
         this->n = n;
@@ -83,9 +83,7 @@ public:
         tree.resize(id);
         value.resize(id);
         for (int node = 0; node < n; node++) {
-            for (auto edge : adj[node]) {
-                int weight, nei;
-                tie(weight, nei) = edge;
+            for (auto [weight, nei] : adj[node]) {
                 int u = color[node], v = color[nei];
                 if (u != v) {
                     tree[u].push_back({weight, v});

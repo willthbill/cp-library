@@ -1,0 +1,13 @@
+pair<int, int> dfs(vector<vector<pair<i64, int>>>& adj, int node, int parent, int d) {
+    pair<int, int> mx = {d, node};
+    for (auto [weight, nei] : adj[node]) {
+        if (nei == parent) {
+            continue;
+        }
+        mx = max(mx, dfs(adj, nei, node, d+1));
+    }
+    return mx;
+}
+i64 get_diameter(vector<vector<pair<i64, int>>>& adj) {
+    return dfs(adj, dfs(adj, 0, -1, 0).se, -1, 0).fi;
+}

@@ -1,0 +1,33 @@
+class PrefixSuffix {
+public:
+    i64 n;
+    vector<i64> A;
+    vector<i64> prefix;
+    vector<i64> suffix;
+    PrefixSuffix() {}
+    PrefixSuffix(vector<i64> A) {
+        this->A = A;
+        n = len(A);
+        compute();
+    }
+    void compute() {
+        prefix.resize(n);
+        prefix[0] = A[0];
+        for (int i = 1; i < n; i++) {
+            prefix[i] = prefix[i-1]+A[i];
+        }
+        suffix.resize(n);
+        suffix[n-1] = A[n-1];
+        for (int i = n-2; i >= 0; i--) {
+            suffix[i] = suffix[i+1]+A[i];
+        }
+    }
+    i64 prefix_sum(int l, int r) {
+        assert(l >= 0 && l < n && r >= 0 && r < n && l <= r);
+        return prefix[r]-(l ? prefix[l-1] : 0);
+    }
+    i64 suffix_sum(int l, int r) {
+        assert(l >= 0 && l < n && r >= 0 && r < n && l <= r);
+        return suffix[l]-(r+1 < n ? suffix[r+1] : 0);
+    }
+};

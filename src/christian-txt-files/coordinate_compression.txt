@@ -1,0 +1,5 @@
+sort(all(B));
+mkunique(B);
+auto get_index = [&] (i64 value) -> int {
+    return lower_bound(all(B), value)-B.begin();
+};
