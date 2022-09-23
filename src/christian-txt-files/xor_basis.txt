@@ -1,0 +1,146 @@
+/*
+    testet on
+    https://codeforces.com/contest/845/problem/G
+    https://open.kattis.com/contests/pc3kqy/problems/kleptocrat
+*/
+/*
+    we have a graph where we dfs to get a rooted tree
+
+    we have computed the cyclebasis
+    meaning baisis of all cycles xor_depth[x] ^ xor_depth[y] ^ weight(x, y)
+    in the rooted tree
+
+    let x be xor_depth[u] ^ xor_depth[v]
+    in other words x is the xor distance between u and v
+    in the rooted tree
+
+    we wish to minimize the distance from u to v
+    we can go to some cycle, walk the cycle and walk back
+    this will xor the cycle
+
+    xor basis do this
+*/
+
+class DSU {
+public:
+    vector<int> id;
+    vector<int> sz;
+    DSU(int n) {
+        id.resize(n);
+        sz.resize(n, 1);
+        for (int i = 0; i < n; i++) {
+            id[i] = i;
+        }
+    }
+    int find(int x) {
+        while (x != id[x]) {
+            x = id[x];
+        }
+        return x;
+    }
+    void unite(int a, int b) {
+        a = find(a);
+        b = find(b);
+        if (sz[a] < sz[b]) {
+            swap(a, b);
+        }
+        sz[a] += sz[b];
+        id[b] = a;
+    }
+    int size(int x) {
+        x = find(x);
+        return sz[x];
+    }
+};
+
+class GaussianEliminationMod2 {
+public:
+    int B;
+    int n;
+    vector<i64> basis;
+    GaussianEliminationMod2(int B=64) {
+        this->B = B;
+        basis.resize(B);
+    }
+    void insert(i64 x) {
+        for (int i = B-1; i >= 0; i--) {
+            if (x&(i64)1<<i) {
+                if (basis[i] == 0) {
+                    basis[i] = x, n++;
+                    return;
+                }
+                x ^= basis[i];
+            }
+        }
+    }
+    i64 minimize(i64 x) {
+        for (int i = B-1; i >= 0; i--) {
+            if (x>>i&1) {
+                x ^= basis[i];
+            }
+        }
+        return x;
+    }
+};
+
+void dfs(vector<vector<pair<i64, i64>>>& adj, vector<i64>& color, vector<i64>& cyclebasis, vector<i64>& xor_depth, int node, i64 d) {
+    xor_depth[node] = d;
+    for (auto [weight, nei] : adj[node]) {
+        if (color[nei]) {
+            i64 x = xor_depth[node]^xor_depth[nei]^weight;
+            if (x) {
+                cyclebasis.pb(x);
+            }
+            continue;
+        }
+        color[nei] = 1;
+        dfs(adj, color, cyclebasis, xor_depth, nei, d^weight);
+    }
+}
+
+struct Query { i64 u; i64 v; int k; };
+
+void solve() {
+    i64 n, m, q; cin >> n >> m >> q;
+    vector<vector<pair<i64, i64>>> adj(n);
+    DSU dsu(n);
+    for (int i = 0; i < m; i++) {
+        i64 u, v, w; cin >> u >> v >> w; u--, v--;
+        adj[u].push_back({w, v});
+        adj[v].push_back({w, u});
+        if (dsu.find(u) != dsu.find(v)) {
+            dsu.unite(u, v);
+        }
+    }
+    vector<vector<Query>> Q(n);
+    for (int i = 0; i < q; i++) {
+        i64 u, v; cin >> u >> v; u--, v--;
+        if (dsu.find(u) == dsu.find(v)) {
+            Q[dsu.find(u)].pb({u, v, i});
+        }
+    }
+    vector<i64> color(n);
+    vector<i64> xor_depth(n);
+    vector<i64> A(q, -1);
+    for (int i = 0; i < n; i++) {
+        if (dsu.find(i) == i) {
+            vector<i64> cyclebasis;
+            dfs(adj, color, cyclebasis, xor_depth, i, 0);
+            GaussianEliminationMod2 ge;
+            for (auto v : cyclebasis) {
+                ge.insert(v);
+            }
+            for (auto [u, v, k] : Q[i]) {
+                i64 x = ge.minimize(xor_depth[u]^xor_depth[v]);
+                A[k] = x;
+            }
+        }
+    }
+    for (auto a : A) {
+        if (a == -1) {
+            print("IMPOSSIBLE");
+        } else {
+            print(a);
+        }
+    }
+}
