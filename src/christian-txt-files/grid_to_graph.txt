@@ -1,0 +1,23 @@
+vector<vector<pair<i64, i64>>> adj(n*m);
+auto get_node = [&] (i64 i, i64 j) -> i64 {
+    return i*m+j;
+};
+auto add_edge = [&] (i64 u, i64 v, i64 w) {
+    adj[u].push_back({w, v});
+};
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+        if (i) {
+            add_edge(get_node(i, j), get_node(i-1, j), A[i-1][j]);
+        }
+        if (i+1 < n) {
+            add_edge(get_node(i, j), get_node(i+1, j), A[i+1][j]);
+        }
+        if (j) {
+            add_edge(get_node(i, j), get_node(i, j-1), A[i][j-1]);
+        }
+        if (j+1 < m) {
+            add_edge(get_node(i, j), get_node(i, j+1), A[i][j+1]);
+        }
+    }
+}
