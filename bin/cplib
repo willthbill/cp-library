@@ -1,4 +1,4 @@
-program=~/cp-library/generator/main.js
+program=~/cp/cp-library/generator/main.js
 if [ $# -eq 2 ]; then
     node $program $1 $2
 elif [ $# -eq 0 ]; then
