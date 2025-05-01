@@ -1,0 +1,33 @@
+cp-library
+    definitely
+    - data-structures/matrix
+    - graph/bellman_ford
+    - graph/bridgesandartpoints
+    - graph/biconnected-components
+    - graph/hungarian
+    - number-theory/euler-totient-function
+    - other/randint
+
+    maybe
+    - bitmasks/mobius-transform
+    - string/suffix-tree
+    - tree/are-isomorphic
+
+delete
+- PrefixSuffix
+- duplicates af DSU and segtree
+- (xor trie)
+- (overlap code if in kactl)
+- ((dijkstra))
+- (spfa)
+- (factorize)
+- (sieve)
+- (compute_divisors)
+- bridge tree
+- mushrooms
+- modint
+- (binary search)
+- (matrix mult and exp in linear recurrence)
+
+todo:
+- This document may contain up to 25 pages of reference materials, single-sided, letter or A4 size, with pages numbered in the upper right-hand corner and your university name printed in the upper left-hand corner. Text and illustrations must be readable by a person with correctable eyesight without magnification from a distance of ½ meter.
